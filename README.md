@@ -8,6 +8,10 @@ Repository: https://github.com/ManuelAvanzi/magazzino-lab
 
 ### Pubblicazione
 
+Sito: https://magazzino-lab.vercel.app — editor: https://magazzino-lab.vercel.app/studio.html?session=demo
+
+Il progetto Vercel `magazzino-lab` è collegato alla repository GitHub. Gli aggiornamenti su `main` attivano la pubblicazione; i deploy di prova successivi possono essere creati con `npx vercel deploy`. Il primo deploy è stato completato il 5 ottobre 2026.
+
 `npm test` verifica il modello; `npm run build` prepara il sito statico in `dist/`, escludendo test, screenshot e appunti. `vercel.json` configura la pubblicazione con test obbligatori prima della build. Il progetto non richiede un server applicativo in produzione. I salvataggi rimangono nel browser: per trasferirli da localhost alla versione online usare Esporta progetto e Apri.
 
 Configuratore didattico 3D locale per discutere layout, logistica e interferenze di un magazzino. Ispirato al flusso dell'editor del configuratore mostre, con progetto e dati indipendenti.
