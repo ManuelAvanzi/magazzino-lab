@@ -1,0 +1,8 @@
+<!doctype html><html><head><script type="importmap">{"imports":{"three":"../vendor/three.module.min.js"}}</script></head><body style="margin:0"><pre id="result"></pre><button id="walk">Camminata</button><button id="pack">Banco</button><script type="module">
+import * as T from 'three';import {createHumanWorker,animateHuman} from '../human-worker.js';
+const scene=new T.Scene();scene.background=new T.Color('#bec7cb');const r=new T.WebGLRenderer({antialias:true});r.setSize(1000,700);document.body.append(r.domElement);scene.add(new T.HemisphereLight('#ffffff','#647681',2));const light=new T.DirectionalLight('#fff6e6',2.4);light.position.set(3,5,6);scene.add(light);const camera=new T.PerspectiveCamera(40,1000/700,.1,100);camera.position.set(2.8,1.8,3);camera.lookAt(0,1,0);const person=createHumanWorker({w:.65,d:.65,h:1.8});scene.add(person);
+const pose=()=>{const a=[];person.traverse(o=>{if(o.isBone)a.push(...o.quaternion.toArray(),...o.position.toArray());});return a;};
+animateHuman(person,2,0,0,true,true);animateHuman(person,2,0,0,true);const before=pose();for(let i=0;i<600;i++)animateHuman(person,2,0,0,true);const after=pose();const drift=Math.max(...before.map((v,i)=>Math.abs(v-after[i])));document.querySelector('#result').textContent='Ripetizione di 600 fotogrammi alla stessa posa: deriva massima '+drift+' (attesa < 0.000001)';
+let packing=true;document.querySelector('#walk').onclick=()=>packing=false;document.querySelector('#pack').onclick=()=>packing=true;r.setAnimationLoop(t=>{animateHuman(person,t/1000,packing?0:1,0,packing);r.render(scene,camera);});
+</script></body></html>
+

@@ -1,0 +1,36 @@
+<!doctype html><html lang="it"><meta charset="utf-8"><title>Rendering del laboratorio</title>
+<style>body{margin:0;background:#202830;color:white;font:14px sans-serif}nav{padding:12px;display:flex;gap:10px}button{padding:10px;cursor:pointer}#scene{width:1600px;height:900px}#output{display:block;width:min(100%,1600px)}[hidden]{display:none!important}</style>
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js"}}</script>
+<nav><button data-shot="stoccaggio">Stoccaggio</button><button data-shot="ricevimento">Ricevimento</button><button data-shot="imballaggio">Imballaggio</button><button id="capture">Cattura rendering</button><span id="status">Caricamento materiali…</span></nav><div id="scene"></div><img id="output" alt="Rendering catturato dal laboratorio" hidden>
+<button id="record">Registra movimento</button><video id="film" controls hidden style="width:min(100%,1600px)"></video>
+<script type="module">
+import * as T from 'three';
+import {WarehouseScene} from './warehouse-scene.js';
+import {warehouseDemo} from './model.js';
+const studio=new WarehouseScene(document.querySelector('#scene'),()=>{});
+studio.setMotion(false);studio.build(warehouseDemo(),null);
+const shots={stoccaggio:{position:[13,4.8,14],target:[-4,2,-3],fov:59},ricevimento:{position:[-12,3.3,-9],target:[1,2.3,-16],fov:66},imballaggio:{position:[3,3.8,14.8],target:[-4,1.2,10],fov:60}};
+let shot='stoccaggio';
+function frame(name){shot=name;const s=shots[name];studio.center('inside');studio.setLighting('golden');studio.camera.fov=s.fov;studio.camera.position.set(...s.position);studio.controls.target.set(...s.target);studio.camera.updateProjectionMatrix();studio.controls.update();studio.needsRender=true;document.querySelector('#output').hidden=true;document.querySelector('#scene').hidden=false;document.querySelector('#status').textContent=name;}
+document.querySelectorAll('[data-shot]').forEach(b=>b.onclick=()=>frame(b.dataset.shot));
+T.DefaultLoadingManager.onLoad=()=>{frame(shot);document.querySelector('#status').textContent='Materiali pronti · '+shot;};
+// ResizeObserver sets the editor overview first; apply the photographic camera afterwards.
+requestAnimationFrame(()=>requestAnimationFrame(()=>frame(shot)));
+document.querySelector('#capture').onclick=()=>{studio.composer.render();const out=document.querySelector('#output');out.src=studio.renderer.domElement.toDataURL('image/png');out.hidden=false;document.querySelector('#status').textContent='Rendering pronto · '+shot;out.scrollIntoView();};
+document.querySelector('#record').onclick=()=>{
+ const button=document.querySelector('#record');button.disabled=true;frame(shot);
+ studio.renderer.setPixelRatio(1);studio.resize();frame(shot);
+ const s=shots[shot],start=new T.Vector3(...s.position),target=new T.Vector3(...s.target);
+ const stream=studio.renderer.domElement.captureStream(24),chunks=[];
+ const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9',videoBitsPerSecond:4000000});
+ recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+ recorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());const reader=new FileReader();reader.onload=()=>{const film=document.querySelector('#film');film.src=reader.result;film.hidden=false;button.disabled=false;document.querySelector('#status').textContent='Video pronto · '+shot;film.scrollIntoView();};reader.readAsDataURL(new Blob(chunks,{type:'video/webm'}));};
+ document.querySelector('#status').textContent='Registrazione · '+shot;
+ let began;recorder.start();
+ function tick(now){began??=now;const t=Math.min((now-began)/9000,1),ease=t*t*(3-2*t);
+ studio.camera.position.copy(start).lerp(target,.07*ease);studio.camera.position.x+=.8*ease;
+ studio.controls.target.copy(target);studio.controls.update();studio.composer.render();
+ if(t<1)requestAnimationFrame(tick);else recorder.stop();}
+ requestAnimationFrame(tick);
+};
+</script></html>

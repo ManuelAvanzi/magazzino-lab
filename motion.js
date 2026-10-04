@@ -32,5 +32,13 @@ export function vehicleRoute(project,vehicle){
  return null;
 }
 export function routePosition(route,time){return {...route.origin,[route.axis]:route.mid+route.half*Math.cos(route.phase+route.direction*time*route.speed/route.half)};}
+// Pedestrians use the same bounded corridor calculation, with separate walking
+// segments for each person. Vehicle lanes and exits remain forbidden obstacles.
+export function workerRoute(project,person){
+ const proxy={...project,objects:project.objects.map(o=>({...o,type:o.type==='pedestrian'?'vehicle':o.type==='vehicle'?'pedestrian':o.type==='worker'?'forklift':o.type}))};
+ const actor=proxy.objects.find(o=>o.id===person.id);
+ const route=vehicleRoute(proxy,actor);
+ return route?{...route,speed:.65}:null;
+}
 export function routeEnvelope(route,vehicle){const b=bounds(vehicle);return {x:route.axis==='x'?route.mid:vehicle.x,z:route.axis==='z'?route.mid:vehicle.z,w:b.w+(route.axis==='x'?route.high-route.low:0)+.5,d:b.d+(route.axis==='z'?route.high-route.low:0)+.5};}
 export function routesIntersect(a,b){return Math.abs(a.x-b.x)<(a.w+b.w)/2&&Math.abs(a.z-b.z)<(a.d+b.d)/2;}
