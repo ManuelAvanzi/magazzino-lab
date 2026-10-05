@@ -107,3 +107,9 @@ I collegamenti sono calcolati su una griglia da un metro negli spazi liberi del 
 
 ### Identità e avvio della scena
 Il prodotto si chiama Warehouse Lab, con crediti CarraroLAB in homepage, editor e schermata iniziale. La navigazione propone Didattica. Il loader appare prima dei moduli 3D e resta visibile durante il download delle risorse e la preparazione della prima vista; in caso di errore permette di riprovare. Le anteprime del catalogo vengono generate progressivamente dopo l’apertura della scena. Il nome della repository e l’URL esistente restano compatibili.
+
+
+### Template di magazzino
+La voce **Template** offre il magazzino didattico originale (48 × 40 m, 48 moduli) e il **Centro di distribuzione** (60 × 48 m, 80 moduli, 118 elementi, 480 posti pallet teorici), con piazzale esterno. Ogni apertura crea una copia modificabile; Annulla ripristina il progetto precedente. Le proprietà di pallet e scaffalature consentono di scegliere cartoni, cassette riutilizzabili, fusti e casse in legno. Le tipologie sono conservate nei file JSON.
+
+Il camion rigido si accosta in retromarcia alla baia esterna, sosta e riparte lungo l’accesso dedicato. Avvia/Pausa controlla anche questo ciclo; **Inquadra camion** avvicina la vista al piazzale. Si tratta di un ciclo dimostrativo: non simula trasferimenti fisici dal camion, inventario o manovre certificate. La baia di uscita dei flussi merci punta al piazzale nel template avanzato. Il piazzale non contribuisce alla superficie interna indicata e non è editabile nella pianta 2D.

@@ -25,7 +25,7 @@ export function makeFlowLesson(project){
  const grid=flowGrid(project),rack=project.objects.filter(o=>o.type==='rack').sort((a,b)=>b.x-a.x||a.z-b.z)[0],bench=project.objects.find(o=>o.type==='bench'),shipping=project.objects.find(o=>o.type==='shipping');
  if(!rack||!bench||!shipping)return {error:'Per osservare il ciclo completo aggiungi almeno una scaffalatura, un banco imballaggio e un’area spedizioni.'};
  const rb=bounds(rack),bb=bounds(bench),sb=bounds(shipping);
- const targets=[{x:0,z:-project.depth/2+2},{x:project.width*.27,z:-project.depth/2+5},{x:rb.x+rb.w/2+1,z:rb.z},{x:bb.x,z:bb.z+bb.d/2+1},{x:sb.x,z:sb.z-sb.d/2-1},{x:Math.min(7,project.width/4),z:-project.depth/2+2}];
+ const targets=[{x:0,z:-project.depth/2+2},{x:project.width*.27,z:-project.depth/2+5},{x:rb.x+rb.w/2+1,z:rb.z},{x:bb.x,z:bb.z+bb.d/2+1},{x:sb.x,z:sb.z-sb.d/2-1},project.logisticsYard?{x:Math.min(16,project.width/2-4),z:project.depth/2-1}:{x:Math.min(7,project.width/4),z:-project.depth/2+2}];
  const ids=targets.map(p=>grid.nearest(p));
  if(ids.some(i=>i<0))return {error:'Una delle tappe non ha spazio libero vicino. Libera ricevimento, accesso allo scaffale, banco e spedizioni.'};
  const points=ids.map(i=>grid.nodes[i]);
@@ -39,7 +39,7 @@ export function makeFlowLesson(project){
   stage('Prelievo','Un ordine cliente richiede merce a stock. L’operatore verifica articolo e quantità prima del prelievo.','Stesso articolo e stessa quantità dell’ordine?',points[2],[points[2]],'out'),
   stage('Imballaggio','La merce prelevata raggiunge il banco: verifica dell’ordine, protezione del contenuto ed etichetta.','L’etichetta identifica il destinatario corretto?',points[3],links[2],'out'),
   stage('Consolidamento','I colli pronti attendono nell’area spedizioni, raggruppati per ordine o partenza.','Quali colli devono partire insieme?',points[4],links[3],'out'),
-  stage('Carico e uscita','Il lotto raggiunge la baia 03. Un ultimo riscontro precede il carico e la conferma della spedizione.','Tutti i colli previsti sono stati caricati?',points[5],links[4],'out')
+  stage('Carico e uscita',project.logisticsYard?'Il lotto raggiunge la baia verso il piazzale esterno. Un ultimo riscontro precede il carico sul camion e la conferma della spedizione.':'Il lotto raggiunge la baia 03. Un ultimo riscontro precede il carico e la conferma della spedizione.','Tutti i colli previsti sono stati caricati?',points[5],links[4],'out')
  ];
  return {stages,points,links};
 }

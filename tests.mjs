@@ -2,6 +2,22 @@ import test from 'node:test';import assert from 'node:assert/strict';import {dem
 import {vehicleRoute,workerRoute,routePosition} from './motion.js';
 import {placeInWarehouse,makeRow,findFreePlacement} from './editor-model.js';
 import {makeFlowLesson,flowGrid,alongFlow} from './flow-model.js';
+import {warehouseTemplates,distributionWarehouse,truckCycle} from './templates.js';
+
+test('Template: copie indipendenti, layout base conservato e distribuzione con quattro merci',()=>{
+ const base=warehouseTemplates[0].create();assert.equal(base.objects.filter(o=>o.type==='rack').length,48);
+ const advanced=distributionWarehouse();assert.equal(advanced.objects.filter(o=>o.type==='rack').length,80);
+ assert.equal(new Set(advanced.objects.filter(o=>o.cargoType).map(o=>o.cargoType)).size,4);
+ assert.deepEqual(analyze(advanced),[]);assert.equal(makeFlowLesson(advanced).error,undefined);
+ assert.deepEqual(validate(JSON.parse(JSON.stringify(advanced))),advanced);
+ const second=distributionWarehouse();advanced.objects[0].x=20;assert.notEqual(second.objects[0].x,20);assert.notEqual(second.objects[0].id,advanced.objects[0].id);
+ const bad=distributionWarehouse();bad.objects[0].cargoType='invalid';assert.throws(()=>validate(bad));
+});
+test('Camion: arrivo, sosta, partenza e attesa sempre fuori dal magazzino',()=>{
+ const d=48;assert.equal(truckCycle(0,d).phase,'Arrivo e accosto');assert.equal(truckCycle(12,d).z,30);assert.equal(truckCycle(20,d).moving,false);assert.equal(truckCycle(30,d).phase,'Partenza');assert.equal(truckCycle(40,d).visible,false);
+ for(let t=0;t<88;t+=.1){const state=truckCycle(t,d);assert.ok(state.z-4.55>d/2);assert.ok(Math.abs(truckCycle(t+.01,d).z-state.z)<.05);}
+ assert.equal(truckCycle(44,d).z,truckCycle(0,d).z);
+});
 
 test('Flussi merci: sette fasi continue negli spazi liberi senza cambiare il progetto',()=>{
  const p=warehouseDemo(),before=JSON.stringify(p),lesson=makeFlowLesson(p),grid=flowGrid(p);
