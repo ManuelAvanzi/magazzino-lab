@@ -3,20 +3,21 @@ import {FlowLesson} from './flow-lesson.js';
 import { WarehouseScene } from './warehouse-scene.js';
 import {PlanEditor} from './plan-editor.js';
 import {makeRow,findFreePlacement,placeInWarehouse} from './editor-model.js';
-import { catalog, demo, warehouseDemo, isLegacyDemo, item, isZone, analyze, validate } from './model.js';
+import { catalog, blankWarehouse, demo, warehouseDemo, isLegacyDemo, item, isZone, analyze, validate } from './model.js';
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let project=warehouseDemo(),selected=null,tab='design',history=[],future=[],mode='3d';
 const requestedSession=new URLSearchParams(location.search).get('session');
-const session=['demo','exercise'].includes(requestedSession)?requestedSession:'personal';
+const session=['demo','exercise','plan'].includes(requestedSession)?requestedSession:'personal';
 const storageKey=session==='personal'?'magazzino-lab-v1':`magazzino-lab-v1-${session}`;
+if(session==='plan')project=blankWarehouse();
 let restored=false;
 try { const saved=localStorage.getItem(storageKey);if(saved){project=validate(JSON.parse(saved));restored=true;} } catch { toast('Salvataggio non disponibile: aperto il magazzino di esempio.'); }
 if(session==='demo'&&restored&&isLegacyDemo(project)){project=warehouseDemo();try{localStorage.setItem(storageKey,JSON.stringify(project));}catch{}}
 if(session==='exercise'&&!restored){project=demo();project.objects.push(item('pallet',-11,0),item('pallet',-11,11),item('pallet',-7,-6));}
 if(session==='exercise')tab='safety';
-if(session!=='personal')$('.project small').textContent=session==='demo'?'Esempio / Salvataggio separato':'Esercitazione / Salvataggio separato';
+if(session!=='personal')$('.project small').textContent=session==='plan'?'Progetto da pianta / Salvato sul dispositivo':session==='demo'?'Esempio / Salvataggio separato':'Esercitazione / Salvataggio separato';
 function selectObject(id){if(tab==='flows')return;if(id)studio.setMotion(false,true);selected=id;if(id){tab='design';openInspector();}rebuild();}
 const studio=new WarehouseScene($('#viewport'),selectObject);
 studio.flowLesson=new FlowLesson(studio);
@@ -46,7 +47,7 @@ function updateTools(){
   document.querySelectorAll('[data-catalog-count]').forEach(el=>{const count=project.objects.filter(o=>o.type===el.dataset.catalogCount).length;el.textContent=count?`${count} nel progetto`:'Da aggiungere';});
   if($('#workflow-status')){$('#workflow-status').textContent=choice?`${choice.name} · ${choice.w} × ${choice.d} m`:`${project.objects.length} elementi · Seleziona o aggiungi dal catalogo`;$('#dock-focus').disabled=!choice;$('#dock-duplicate').disabled=!choice;$('#dock-delete').disabled=!choice;$('#capture-view').disabled=mode==='2d';}
 }
-function updateUI(){document.body.classList.toggle('flow-mode',tab==='flows');studio.flowLesson.activate(tab==='flows');const issues=analyze(project),racks=project.objects.filter(o=>o.type==='rack');$('#width').value=project.width;$('#depth').value=project.depth;$('#area').textContent=project.width*project.depth+' m²';$('.scene-label h1').textContent=project.name||'Magazzino didattico';$('#yard-status').hidden=!studio.yard;$('#area-label').textContent=project.width+' × '+project.depth+' m · Altezza capannone 7,5 m';$('#capacity').textContent=racks.length*6;$('#occupancy').textContent=Math.round(racks.reduce((s,o)=>s+o.w*o.d,0)/(project.width*project.depth)*100)+'%';$('#issues').textContent=issues.length;$('#issue-count').textContent=issues.length;$('#undo').disabled=!history.length;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderPanel(issues);}
+function updateUI(){document.body.classList.toggle('flow-mode',tab==='flows');studio.flowLesson.activate(tab==='flows');$('#project-name').value=project.name||'Il mio magazzino';const issues=analyze(project),racks=project.objects.filter(o=>o.type==='rack');$('#width').value=project.width;$('#depth').value=project.depth;$('#area').textContent=project.width*project.depth+' m²';$('.scene-label h1').textContent=project.name||'Magazzino didattico';$('#yard-status').hidden=!studio.yard;$('#area-label').textContent=project.width+' × '+project.depth+' m · Altezza capannone 7,5 m';$('#capacity').textContent=racks.length*6;$('#occupancy').textContent=Math.round(racks.reduce((s,o)=>s+o.w*o.d,0)/(project.width*project.depth)*100)+'%';$('#issues').textContent=issues.length;$('#issue-count').textContent=issues.length;$('#undo').disabled=!history.length;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderPanel(issues);}
 function renderPanel(issues){const panel=$('#panel'),o=project.objects.find(o=>o.id===selected);
 if(tab==='flows'){studio.flowLesson.render(panel);return;}
 if(tab==='safety'){
@@ -103,7 +104,13 @@ templateDialog.querySelectorAll('[data-template]').forEach(button=>button.onclic
 
 function exercise(){commit(()=>{project=demo();project.objects.push(item('pallet',-11,0),item('pallet',-11,11),item('pallet',-7,-6));selected=null;tab='safety';});setView('3d');openInspector();toast('Tre interferenze da risolvere. Annulla ripristina il progetto precedente.');}
 $('#exercise').onclick=exercise;
-$('#export').onclick=()=>{const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.href=url;a.download='warehouse-lab.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progetto esportato.');};
+const newDialog=document.createElement('dialog');newDialog.className='editor-help';newDialog.setAttribute('aria-labelledby','new-title');
+newDialog.innerHTML=`<form id="new-form"><div class="eyebrow">01 / PARTI DALLA PIANTA</div><h2 id="new-title">Crea il tuo magazzino.</h2><p>Imposta una pianta rettangolare vuota. Poi aggiungi scaffali, postazioni e percorsi dal catalogo, disponili in 2D e osserva il risultato in 3D.</p><label>Nome<input name="name" maxlength="100" value="Il mio magazzino" required></label><div class="dimensions"><label>Larghezza · m<input name="width" type="number" min="16" max="60" value="30" required></label><label>Profondità · m<input name="depth" type="number" min="16" max="60" value="24" required></label></div><p>Da 16 a 60 metri per lato. Il nuovo progetto sostituisce la bozza di questa sessione: esportala prima se vuoi conservarne una copia. Puoi annullare la creazione dall’editor.</p><p id="new-error" role="status"></p><button type="submit" class="primary">Crea pianta vuota →</button><button type="button" id="new-cancel">Torna al progetto</button></form>`;
+document.body.append(newDialog);$('#new-project').onclick=()=>newDialog.showModal();$('#new-cancel').onclick=()=>newDialog.close();
+$('#new-form').onsubmit=e=>{e.preventDefault();const data=new FormData(e.target);try{const empty=blankWarehouse(data.get('name'),data.get('width'),data.get('depth'));commit(()=>{project=empty;selected=null;tab='design';});setView('2d');document.body.classList.remove('expanded','inspector-open');newDialog.close();toast('Pianta creata e salvata sul dispositivo. Aggiungi gli elementi dal catalogo.');}catch(error){$('#new-error').textContent=error.message;}};
+$('#project-name').onchange=e=>{const name=e.target.value.trim();if(!name){updateUI();return;}commit(()=>project.name=name.slice(0,100));};
+$('#save-project').onclick=()=>{save();toast($('#save-status').textContent);};
+$('#export').onclick=()=>{const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.href=url;a.download=(project.name||'warehouse-lab').replace(/[<>:"/\\|?*]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progetto esportato.');};
 $('#import').onclick=()=>$('#file').click();$('#file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>2e6)throw Error('File troppo grande. Massimo 2 MB.');const p=validate(JSON.parse(await file.text()));commit(()=>{project=p;selected=null;});studio.center(mode);toast('Progetto aperto.');}catch(err){toast(err.message);}e.target.value='';};
 // Persistent, discoverable tools shared by the floor plan and the 3D scene.
 const navigationDock=document.createElement('div');navigationDock.className='navigation-dock';
@@ -136,7 +143,7 @@ document.addEventListener('keydown',e=>{
   try{const pos=placeInWarehouse(project,o,o.x+dx,o.z+dz,0);if(pos.x!==o.x||pos.z!==o.z)commit(()=>Object.assign(o,pos));}catch(error){toast(error.message);}
  }
 });
-rebuild();setView('3d');
+rebuild();setView(session==='plan'?'2d':'3d');
 if(session==='exercise'){studio.setMotion(false,true);openInspector();}
 if(session!=='personal')$('#save-status').textContent='Salvataggio separato dal progetto personale';
 
@@ -145,6 +152,7 @@ if(new URLSearchParams(location.search).get('wide')==='1')expandView(true);
 export async function finishLoading(){
  await studio.renderer.compileAsync(studio.scene,studio.camera);
  studio.composer.render();studio.needsRender=true;
+ if(new URLSearchParams(location.search).get('new')==='1'){newDialog.showModal();const url=new URL(location.href);url.searchParams.delete('new');window.history.replaceState(null,'',url);}
 }
 export function loadCatalogPreviews(){
  return studio.previews(catalog,(type,url)=>{const img=document.querySelector(`[data-add="${type}"] .thumb img`);if(img){img.src=url;img.hidden=false;}});

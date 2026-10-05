@@ -9,3 +9,5 @@ Aggiornamento grafico: sostituito canvas isometrico con WarehouseScene condivisa
 Simulatore centrato sulle merci: rimossi denaro e incassi dal motore e dalla UI; conteggio unità consegnate, risorse attivabili con tempo. Guida azionabile con motivo e durata, pulsanti numerati e conseguenze per ogni ordine. 32 test superati; browser verificato fino a 1 spedizione/2 unità/4 posti occupati, nessun errore console.
 
 Vista HUD: scena estesa a tutta finestra, camera ravvicinata, indicatori e comandi sovrapposti, pannelli con scroll interno e comando Nascondi/Mostra. Verificati preparazione ordine, toggle pannelli, screenshot e console priva di errori. Build superata.
+
+Creazione da zero: ingresso home, modulo pianta rettangolare, nome progetto, bozza separata e ripresa dalla home, salvataggio esplicito ed export nominato. 33 test e build superati. Browser: creata pianta 30x24, aggiunta scaffalatura, JSON scaricato e letto, reload conserva 1 oggetto in Pianta 2D; nessun errore console.

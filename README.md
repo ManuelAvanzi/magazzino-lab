@@ -121,3 +121,7 @@ La sezione Simulatore, accessibile dalla home e dalla scheda 05 dell’editor, a
 Il simulatore rappresenta ogni unità con un pallet: scorte sugli scaffali e ordini preparati nell’area spedizioni. La scheda Cosa fare adesso e perché propone un pulsante operativo, la conseguenza sulla merce e il tempo richiesto. Il risultato misura ordini completati e unità consegnate; non sono previsti denaro, acquisti o penalità economiche. I loader di editor e simulatore mostrano un rendering locale del laboratorio; il simulatore attende modelli, materiali e compilazione della scena prima di iniziare.
 
 La vista simulatore occupa l’intera finestra sotto la barra del sito: indicatori, scorte, guida e ordini sono pannelli HUD sovrapposti. I pannelli scorrono internamente; Nascondi pannelli libera la scena, Inquadra magazzino ripristina la vista ravvicinata.
+
+
+### Creazione da pianta
+La home propone Crea da zero e Riprendi progetto. Il percorso `studio.html?session=plan&new=1` apre il modulo nome/dimensioni e crea una pianta rettangolare vuota da 16 a 60 metri per lato. La sessione plan salva una bozza separata da demo, esercizi e progetto personale. Nome e dimensioni restano modificabili; Nuovo crea una nuova pianta con avviso di sostituzione e possibilità di Annulla. Salva conferma il salvataggio sul dispositivo; Esporta progetto scarica il JSON denominato come il progetto, riapribile con Apri.

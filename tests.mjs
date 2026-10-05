@@ -135,3 +135,6 @@ test('Simulatore: risorse aggiuntive uniche e azioni invalide senza avanzare il 
 });
 
 test('Guida merce: indica preparazione, spedizione, rifornimento e attesa con motivo',()=>{const s=newGame();act(s,'start');let n=nextMove(s);assert.equal(n.action,'pack');assert.ok(n.why.includes('scaffali'));act(s,n.action,n.payload);n=nextMove(s);assert.equal(n.action,'ship');assert.ok(n.why.includes('libera'));s.orders=s.orders.filter(o=>o.id===2);s.stock.totes=0;n=nextMove(s);assert.equal(n.action,'replenish');assert.equal(n.payload,'totes');act(s,n.action,n.payload);s.orders=s.orders.filter(o=>o.id===2);assert.equal(nextMove(s).action,'wait');assert.equal('budget' in s,false);});
+
+import {blankWarehouse} from "./model.js";
+test("Progetto da zero: pianta vuota indipendente e riapribile",()=>{const p=blankWarehouse("Deposito scuola",32,24);assert.equal(p.objects.length,0);assert.equal(p.width,32);assert.deepEqual(validate(JSON.parse(JSON.stringify(p))),p);const q=blankWarehouse();p.objects.push(item("rack"));assert.equal(q.objects.length,0);assert.throws(()=>blankWarehouse("Prova",10,24));});
