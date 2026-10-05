@@ -116,20 +116,22 @@ test('Corsia ruotata e doppio carrello: i percorsi restano separati',()=>{const 
 test('Persone: percorso pedonale consentito, corsia mezzi segnalata',()=>{const p={width:24,depth:24,objects:[item('pedestrian'),item('worker')]};assert.equal(analyze(p).length,0);p.objects[0]=item('vehicle');assert.equal(analyze(p).length,1);});
 test('Demo precedente: riconosce solo un layout originale invariato',()=>{const p=legacyWarehouseDemo();assert.ok(isLegacyDemo(p));p.objects[0].x+=.1;assert.ok(!isLegacyDemo(p));assert.ok(!isLegacyDemo(warehouseDemo()));});
 
-import {newGame,act,occupied,reserved} from './simulator-model.js';
+import {newGame,act,occupied,reserved,nextMove} from './simulator-model.js';
 test('Simulatore: partita completa, cinque spedizioni entro il turno',()=>{
- const s=newGame();for(const [a,p] of [['start'],['hire'],['pack',1],['ship',1],['pack',2],['ship',2],['pack',3],['ship',3],['buy','cartons'],['buy','totes'],['pack',4],['ship',4],['pack',5],['ship',5]])assert.ok(act(s,a,p));
- assert.equal(s.mode,'won');assert.equal(s.shipped,5);assert.equal(s.time,13);assert.equal(s.missed,0);assert.ok(s.budget>120);
+ const s=newGame();for(const [a,p] of [['start'],['hire'],['pack',1],['ship',1],['pack',2],['ship',2],['pack',3],['ship',3],['replenish','cartons'],['replenish','totes'],['pack',4],['ship',4],['pack',5],['ship',5]])assert.ok(act(s,a,p));
+ assert.equal(s.mode,'won');assert.equal(s.shipped,5);assert.equal(s.time,13);assert.equal(s.missed,0);assert.equal(s.unitsShipped,10);
 });
 test('Simulatore: rifornimenti prenotano spazio e arrivano dopo due tempi',()=>{
- const s=newGame();act(s,'start');act(s,'buy','cartons');assert.equal(s.stock.cartons,3);assert.equal(reserved(s),9);act(s,'buy','totes');assert.equal(s.stock.cartons,6);assert.equal(reserved(s),12);const before=[s.time,s.budget];assert.equal(act(s,'buy','drums'),false);assert.deepEqual([s.time,s.budget],before);act(s,'wait');assert.equal(s.stock.totes,5);
+ const s=newGame();act(s,'start');act(s,'replenish','cartons');assert.equal(s.stock.cartons,3);assert.equal(reserved(s),9);act(s,'replenish','totes');assert.equal(s.stock.cartons,6);assert.equal(reserved(s),12);const before=[s.time,s.unitsShipped];assert.equal(act(s,'replenish','drums'),false);assert.deepEqual([s.time,s.unitsShipped],before);act(s,'wait');assert.equal(s.stock.totes,5);
 });
-test('Simulatore: preparazione occupa spazio, spedizione libera e incassa',()=>{
- const s=newGame();act(s,'start');act(s,'pack',1);assert.equal(occupied(s),6);assert.equal(s.stock.cartons,1);assert.equal(s.time,2);act(s,'ship',1);assert.equal(occupied(s),4);assert.equal(s.budget,160);assert.equal(act(s,'ship',1),false);
+test('Simulatore: preparazione occupa spazio, spedizione libera spazio e consegna merce',()=>{
+ const s=newGame();act(s,'start');act(s,'pack',1);assert.equal(occupied(s),6);assert.equal(s.stock.cartons,1);assert.equal(s.time,2);act(s,'ship',1);assert.equal(occupied(s),4);assert.equal(s.unitsShipped,2);assert.equal(act(s,'ship',1),false);
 });
 test('Simulatore: pausa, scadenze, sconfitta e riavvio',()=>{
- const s=newGame();act(s,'start');act(s,'pack',1);s.mode='paused';const before=JSON.stringify(s);assert.equal(act(s,'wait'),false);assert.equal(JSON.stringify(s),before);s.mode='playing';while(s.time<9)act(s,'wait');assert.equal(s.orders[0].status,'expired');assert.equal(s.stock.cartons,3);assert.equal(s.missed,2);assert.equal(s.budget,90);while(s.mode==='playing')act(s,'wait');assert.equal(s.mode,'lost');assert.equal(act(s,'buy','cartons'),false);assert.equal(newGame().mode,'intro');
+ const s=newGame();act(s,'start');act(s,'pack',1);s.mode='paused';const before=JSON.stringify(s);assert.equal(act(s,'wait'),false);assert.equal(JSON.stringify(s),before);s.mode='playing';while(s.time<9)act(s,'wait');assert.equal(s.orders[0].status,'expired');assert.equal(s.stock.cartons,3);assert.equal(s.missed,2);assert.equal(s.unitsShipped,0);while(s.mode==='playing')act(s,'wait');assert.equal(s.mode,'lost');assert.equal(act(s,'replenish','cartons'),false);assert.equal(newGame().mode,'intro');
 });
-test('Simulatore: investimenti unici e azioni invalide senza addebiti',()=>{
- const s=newGame();act(s,'start');act(s,'expand');act(s,'hire');assert.equal(s.capacity,18);assert.equal(s.fastPacking,true);const before=[s.time,s.budget];for(const [a,p] of [['expand'],['hire'],['pack',999],['ship',1],['buy','unknown']])assert.equal(act(s,a,p),false);assert.deepEqual([s.time,s.budget],before);
+test('Simulatore: risorse aggiuntive uniche e azioni invalide senza avanzare il tempo',()=>{
+ const s=newGame();act(s,'start');act(s,'expand');act(s,'hire');assert.equal(s.capacity,18);assert.equal(s.fastPacking,true);const before=[s.time,s.unitsShipped];for(const [a,p] of [['expand'],['hire'],['pack',999],['ship',1],['replenish','unknown']])assert.equal(act(s,a,p),false);assert.deepEqual([s.time,s.unitsShipped],before);
 });
+
+test('Guida merce: indica preparazione, spedizione, rifornimento e attesa con motivo',()=>{const s=newGame();act(s,'start');let n=nextMove(s);assert.equal(n.action,'pack');assert.ok(n.why.includes('scaffali'));act(s,n.action,n.payload);n=nextMove(s);assert.equal(n.action,'ship');assert.ok(n.why.includes('libera'));s.orders=s.orders.filter(o=>o.id===2);s.stock.totes=0;n=nextMove(s);assert.equal(n.action,'replenish');assert.equal(n.payload,'totes');act(s,n.action,n.payload);s.orders=s.orders.filter(o=>o.id===2);assert.equal(nextMove(s).action,'wait');assert.equal('budget' in s,false);});
