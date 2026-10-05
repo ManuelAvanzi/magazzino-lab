@@ -7,3 +7,5 @@ Verifica completata: 31 test superati e build riuscita. Browser locale: avvio, p
 Aggiornamento grafico: sostituito canvas isometrico con WarehouseScene condivisa, scorte e pallet preparati collegati alla partita, scaffale e operatore aggiunti dopo investimento. Loader illustrato in editor e simulatore. Guida contestuale Prossima mossa. Verificati nel browser caricamento, preparazione e spedizione (1/5, 160 €, 4/12 posti), nessun errore console. 31 test superati e build riuscita.
 
 Simulatore centrato sulle merci: rimossi denaro e incassi dal motore e dalla UI; conteggio unità consegnate, risorse attivabili con tempo. Guida azionabile con motivo e durata, pulsanti numerati e conseguenze per ogni ordine. 32 test superati; browser verificato fino a 1 spedizione/2 unità/4 posti occupati, nessun errore console.
+
+Vista HUD: scena estesa a tutta finestra, camera ravvicinata, indicatori e comandi sovrapposti, pannelli con scroll interno e comando Nascondi/Mostra. Verificati preparazione ordine, toggle pannelli, screenshot e console priva di errori. Build superata.

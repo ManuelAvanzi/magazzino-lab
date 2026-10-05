@@ -13,6 +13,11 @@ export function simulatorProject(state){
 }
 export class SimulatorScene{
  constructor(container){this.scene=new WarehouseScene(container,()=>this.scene.setMotion(this.active));this.scene.setLighting('golden');}
+ frame(){
+  const s=this.scene;s.center();
+  s.camera.position.sub(s.controls.target).multiplyScalar(.86).add(s.controls.target);
+  s.controls.update();s.needsRender=true;
+ }
  update(state){
   const key=JSON.stringify([state.stock,state.capacity,state.fastPacking,state.orders.filter(o=>o.status==='ready').map(o=>[o.id,o.type,o.qty])]);
   if(key!==this.key){this.scene.build(simulatorProject(state));this.key=key;}

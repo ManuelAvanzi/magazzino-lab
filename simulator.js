@@ -4,6 +4,7 @@ const welcome=$('#welcome'),result=$('#result');
 const escapeText=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function action(type,payload){if(act(state,type,payload)){lastActionAt=visualTime;}render();}
 function reset(){state=newGame();lastActionAt=-1000;result.close();$('#reset-confirm').close();$('#start').textContent='Inizia il turno →';render();welcome.showModal();}
+$('#hud-toggle').onclick=()=>{const hidden=document.querySelector('main').classList.toggle('hud-hidden');$('#hud-toggle').textContent=hidden?'Mostra pannelli':'Nascondi pannelli';$('#hud-toggle').setAttribute('aria-pressed',String(hidden));};
 $('#start').onclick=()=>{welcome.close();if(state.mode==='intro')action('start');};
 $('#pause').onclick=()=>{if(state.mode==='playing')state.mode='paused';else if(state.mode==='paused')state.mode='playing';render();};
 $('#help').onclick=()=>{$('#start').textContent=state.mode==='intro'?'Inizia il turno →':'Torna alla partita';welcome.showModal();};
@@ -39,7 +40,7 @@ async function loadScene(){
   T.DefaultLoadingManager.onLoad=()=>{pending=false;};
   T.DefaultLoadingManager.onError=()=>{failed=true;};
   const {SimulatorScene}=await import('./simulator-scene.js');
-  view=new SimulatorScene($('#game'));view.update(state);view.scene.resize();view.scene.center();
+  view=new SimulatorScene($('#game'));view.update(state);view.scene.resize();view.frame();
   while(pending)await new Promise(r=>setTimeout(r,50));
   if(failed)throw Error('Risorse non disponibili');
   status.textContent='Preparazione delle luci…';
@@ -48,7 +49,7 @@ async function loadScene(){
  }catch(error){status.textContent='Caricamento non riuscito. Controlla la connessione e riprova.';$('#sim-retry').hidden=false;console.error(error);}
 }
 $('#sim-retry').onclick=()=>location.reload();
-$('#view-reset').onclick=()=>view?.scene.center();
+$('#view-reset').onclick=()=>view?.frame();
 window.render_game_to_text=()=>JSON.stringify({...state,occupied:occupied(state),reserved:reserved(state),coordinates:'Scena 3D: X orizzontale, Y altezza, Z profondità; ogni pallet rappresenta una unità di gioco.'});
 window.advanceTime=ms=>{if(state.mode==='playing')visualTime+=Math.max(0,ms);draw();};
 document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='f'&&!document.querySelector('dialog[open]')){if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{});}if(e.code==='Space'&&e.target===document.body){e.preventDefault();$('#pause').click();}});
