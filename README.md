@@ -1,4 +1,4 @@
-# Magazzino Lab
+# Warehouse Lab
 
 ## Versione attuale — 0.2
 
@@ -103,3 +103,7 @@ Correzione animazioni: campionamento esplicito della posa a ogni frame per evita
 La scheda **04 Flussi merci** mostra un lotto simbolico in sette fasi: ricevimento, controllo, stoccaggio, prelievo, imballaggio, consolidamento e carico. Filtri entrata/uscita, pausa, velocità e selezione delle tappe consentono una spiegazione guidata; al controllo è possibile fermare il lotto per una verifica. A fine uscita la spedizione viene indicata come conclusa.
 
 I collegamenti sono calcolati su una griglia da un metro negli spazi liberi del progetto, evitando attrezzature fisse, percorsi pedonali e uscite. Non sono una simulazione delle manovre dei mezzi. Baie e controllo sono tappe illustrative; se manca una postazione o il percorso è interrotto compare un messaggio. La lezione non modifica inventario, oggetti o file esportato. La vista 2D torna alla progettazione.
+
+
+### Identità e avvio della scena
+Il prodotto si chiama Warehouse Lab, con crediti CarraroLAB in homepage, editor e schermata iniziale. La navigazione propone Didattica. Il loader appare prima dei moduli 3D e resta visibile durante il download delle risorse e la preparazione della prima vista; in caso di errore permette di riprovare. Le anteprime del catalogo vengono generate progressivamente dopo l’apertura della scena. Il nome della repository e l’URL esistente restano compatibili.

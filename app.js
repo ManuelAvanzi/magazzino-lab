@@ -71,8 +71,8 @@ $('#duplicate').onclick=duplicateSelected;
 }
 
 $('#catalog-section .tiny-tag').textContent=String(catalog.length).padStart(2,'0');$('#showcase').innerHTML='Carica magazzino 48 × 40 m <span>↗</span>';
-const previews=studio.previews(catalog);
-$('#catalog').innerHTML=catalog.map(c=>`<button class="catalog-card" data-add="${c.type}" title="Aggiungi ${esc(c.name.toLowerCase())}"><span class="thumb"><img src="${previews[c.type]}" alt="" width="128" height="84"></span><span class="plus">+</span><span class="catalog-name">${esc(c.name)}</span><span class="catalog-size">${c.w} × ${c.d} m</span><span class="catalog-count" data-catalog-count="${c.type}"></span></button>`).join('');
+
+$('#catalog').innerHTML=catalog.map(c=>`<button class="catalog-card" data-add="${c.type}" title="Aggiungi ${esc(c.name.toLowerCase())}"><span class="thumb"><img alt="" width="128" height="84" hidden></span><span class="plus">+</span><span class="catalog-name">${esc(c.name)}</span><span class="catalog-size">${c.w} × ${c.d} m</span><span class="catalog-count" data-catalog-count="${c.type}"></span></button>`).join('');
 document.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{if(project.objects.length>=300)return toast('Massimo 300 elementi.');try{const o=item(b.dataset.add);Object.assign(o,findFreePlacement(project,o));openInspector();commit(()=>{project.objects.push(o);selected=o.id;tab='design';});document.body.classList.remove('mobile-library');toast(`${o.name} aggiunto. Trascinalo nella pianta per posizionarlo.`);}catch(error){toast(error.message);}});
 for(const k of ['width','depth'])$('#'+k).onchange=e=>{const value=Number(e.target.value);if(!Number.isFinite(value)||value<16||value>60){toast('Dimensioni ammesse: da 16 a 60 metri.');updateUI();return;}commit(()=>project[k]=value);studio.center(mode);};
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;if(tab==='flows'){document.body.classList.remove('expanded');setView('3d');requestAnimationFrame(()=>{studio.resize();studio.center('3d');});}if(tab!=='design'){studio.setMotion(false,true);openInspector();}updateUI();});
@@ -96,7 +96,7 @@ $('#close-inspector').onclick=()=>{document.body.classList.add('inspector-closed
 $('#showcase').onclick=()=>{commit(()=>{project=warehouseDemo();selected=null;tab='design';});setView('3d');document.body.classList.remove('inspector-open');toast('Magazzino completo caricato. Annulla ripristina il progetto precedente.');};
 function exercise(){commit(()=>{project=demo();project.objects.push(item('pallet',-11,0),item('pallet',-11,11),item('pallet',-7,-6));selected=null;tab='safety';});setView('3d');openInspector();toast('Tre interferenze da risolvere. Annulla ripristina il progetto precedente.');}
 $('#exercise').onclick=exercise;
-$('#export').onclick=()=>{const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.href=url;a.download='magazzino-lab.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progetto esportato.');};
+$('#export').onclick=()=>{const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.href=url;a.download='warehouse-lab.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progetto esportato.');};
 $('#import').onclick=()=>$('#file').click();$('#file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>2e6)throw Error('File troppo grande. Massimo 2 MB.');const p=validate(JSON.parse(await file.text()));commit(()=>{project=p;selected=null;});studio.center(mode);toast('Progetto aperto.');}catch(err){toast(err.message);}e.target.value='';};
 // Persistent, discoverable tools shared by the floor plan and the 3D scene.
 const navigationDock=document.createElement('div');navigationDock.className='navigation-dock';
@@ -134,3 +134,11 @@ if(session==='exercise'){studio.setMotion(false,true);openInspector();}
 if(session!=='personal')$('#save-status').textContent='Salvataggio separato dal progetto personale';
 
 if(new URLSearchParams(location.search).get('wide')==='1')expandView(true);
+
+export async function finishLoading(){
+ await studio.renderer.compileAsync(studio.scene,studio.camera);
+ studio.composer.render();studio.needsRender=true;
+}
+export function loadCatalogPreviews(){
+ return studio.previews(catalog,(type,url)=>{const img=document.querySelector(`[data-add="${type}"] .thumb img`);if(img){img.src=url;img.hidden=false;}});
+}

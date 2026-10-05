@@ -14,3 +14,5 @@
 @keyframes warehouse-drift{from{transform:scale(1.025)}to{transform:scale(1.09)}}
 @media(max-width:760px){.hero-scenes .hero-still{object-position:60% center}.scene-selector{gap:5px}.scene-selector button{padding-inline:7px;font-size:10px}#home-motion-toggle{flex-basis:32px;width:32px;font-size:14px}.hero-scenes .hero-film{display:none}}
 @media(prefers-reduced-motion:reduce){.hero-scenes{transform:none}.hero-scenes .hero-still.active{animation:none}.hero-scenes .hero-film{display:none}}
+
+.site-footer .producer-credit{display:flex;align-items:center;gap:14px}.site-footer .producer-credit>span{font-size:10px;color:#67756b}.site-footer .producer-credit img{display:block;width:160px;height:auto}.site-footer .footer-logo{white-space:nowrap}@media(max-width:760px){.site-footer .producer-credit{grid-column:1/-1}.site-footer .producer-credit img{width:140px}}
