@@ -1,3 +1,4 @@
+import {inspectSimulation} from './simulation-layout.js';
 import {stages,newSimulation,advance,quantities} from './guided-simulation.js';
 const $=s=>document.querySelector(s);let state=newSimulation(),view=null,review=null;
 const welcome=$('#welcome');
@@ -29,19 +30,23 @@ function render(){
 async function loadScene(){
  const loading=$('#sim-loading'),status=$('#sim-loading-status');
  try{
+  let source=null;const params=new URLSearchParams(location.search);
+  if(params.has('layout')){const raw=sessionStorage.getItem('warehouse-simulation-'+params.get('layout'));if(!raw)throw Error('La copia del layout non è disponibile in questa scheda. Torna all’editor e avvia nuovamente la simulazione.');const data=JSON.parse(raw);source=data.project;if(/^\/studio\.html(?:\?|$)/.test(data.returnTo))$('.back').href=data.returnTo;}
+  else if(params.has('project')){const {loadProject}=await import('./cloud.js');source=(await loadProject(params.get('project'))).project;$('.back').href='studio.html?project='+encodeURIComponent(params.get('project'));}
+  if(source){const check=inspectSimulation(source);if(!check.ready)throw Error('Prima completa il layout nell’editor: '+[...check.checks.filter(c=>!c.ok).map(c=>c.title),...check.problems].join(' · '));$('.page-heading h1').textContent=source.name||'Il mio magazzino';$('.scene-note').textContent='Simulazione di un lotto simbolico nel tuo layout. Le quantità riguardano due scaffali dedicati al percorso; il resto dell’allestimento resta invariato. Il progetto salvato non viene modificato.';$('#welcome-title').textContent='Simula nel tuo magazzino';}
   const T=await import('three');let pending=false,failed=false;
   T.DefaultLoadingManager.onStart=()=>{pending=true;};
   T.DefaultLoadingManager.onProgress=(_url,n,total)=>status.textContent=`Modelli e materiali · ${n} di ${total}`;
   T.DefaultLoadingManager.onLoad=()=>{pending=false;};
   T.DefaultLoadingManager.onError=()=>{failed=true;};
   const {SimulatorScene}=await import('./simulator-scene.js');
-  view=new SimulatorScene($('#game'));view.update(state);view.scene.resize();view.frame();
+  view=new SimulatorScene($('#game'),source);view.update(state);view.scene.resize();view.frame();
   while(pending)await new Promise(r=>setTimeout(r,50));
   if(failed)throw Error('Risorse non disponibili');
   status.textContent='Preparazione delle luci…';
   await view.scene.renderer.compileAsync(view.scene.scene,view.scene.camera);
   view.scene.composer.render();loading.remove();$('#start').disabled=false;welcome.showModal();
- }catch(error){status.textContent='Caricamento non riuscito. Controlla la connessione e riprova.';$('#sim-retry').hidden=false;console.error(error);}
+ }catch(error){status.textContent=error.message||'Caricamento non riuscito. Controlla la connessione e riprova.';$('#sim-retry').hidden=false;console.error(error);}
 }
 $('#sim-retry').onclick=()=>location.reload();
 $('#view-reset').onclick=()=>view?.frame();

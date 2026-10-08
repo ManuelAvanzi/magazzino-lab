@@ -1,3 +1,4 @@
+import {mountSimulationGuide} from './simulation-guide.js';
 import {openOnlineProject,mountAccount} from './studio-account.js';
 import {simplifyStudio} from './studio-simple.js';
 import {warehouseTemplates} from './templates.js';
@@ -9,6 +10,7 @@ import { catalog, blankWarehouse, demo, warehouseDemo, isLegacyDemo, item, isZon
 
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let simulationGuide=null;
 let project=warehouseDemo(),selected=null,tab='design',history=[],future=[],mode='3d';
 const requestedSession=new URLSearchParams(location.search).get('session');
 const session=['demo','exercise','plan','fulfillment'].includes(requestedSession)?requestedSession:'personal';
@@ -59,7 +61,7 @@ function updateTools(){
   document.querySelectorAll('[data-catalog-count]').forEach(el=>{const count=project.objects.filter(o=>o.type===el.dataset.catalogCount).length;el.textContent=count?`${count} nel progetto`:'Da aggiungere';});
   if($('#workflow-status')){$('#workflow-status').textContent=choice?`${choice.name} · ${choice.w} × ${choice.d} m`:`${project.objects.length} elementi · Seleziona o aggiungi dal catalogo`;$('#dock-focus').disabled=!choice;$('#dock-duplicate').disabled=!choice;$('#dock-delete').disabled=!choice;$('#capture-view').disabled=mode==='2d';}
 }
-function updateUI(){document.body.classList.toggle('flow-mode',tab==='flows');studio.flowLesson.activate(tab==='flows');$('#project-name').value=project.name||'Il mio magazzino';const issues=analyze(project),racks=project.objects.filter(o=>o.type==='rack');$('#width').value=project.width;$('#depth').value=project.depth;$('#area').textContent=project.width*project.depth+' m²';$('.scene-label h1').textContent=project.name||'Magazzino didattico';$('#yard-status').hidden=!studio.yard;$('#area-label').textContent=project.width+' × '+project.depth+' m · Altezza capannone 7,5 m';$('#capacity').textContent=racks.length*6;$('#occupancy').textContent=Math.round(racks.reduce((s,o)=>s+o.w*o.d,0)/(project.width*project.depth)*100)+'%';$('#issues').textContent=issues.length;$('#issue-count').textContent=issues.length;$('#undo').disabled=!history.length;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderPanel(issues);}
+function updateUI(){simulationGuide?.refresh();document.body.classList.toggle('flow-mode',tab==='flows');studio.flowLesson.activate(tab==='flows');$('#project-name').value=project.name||'Il mio magazzino';const issues=analyze(project),racks=project.objects.filter(o=>o.type==='rack');$('#width').value=project.width;$('#depth').value=project.depth;$('#area').textContent=project.width*project.depth+' m²';$('.scene-label h1').textContent=project.name||'Magazzino didattico';$('#yard-status').hidden=!studio.yard;$('#area-label').textContent=project.width+' × '+project.depth+' m · Altezza capannone 7,5 m';$('#capacity').textContent=racks.length*6;$('#occupancy').textContent=Math.round(racks.reduce((s,o)=>s+o.w*o.d,0)/(project.width*project.depth)*100)+'%';$('#issues').textContent=issues.length;$('#issue-count').textContent=issues.length;$('#undo').disabled=!history.length;document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));renderPanel(issues);}
 function renderPanel(issues){const panel=$('#panel'),o=project.objects.find(o=>o.id===selected);
 if(tab==='flows'){studio.flowLesson.render(panel);return;}
 if(tab==='safety'){
@@ -121,7 +123,7 @@ $('#exercise').onclick=exercise;
 const newDialog=document.createElement('dialog');newDialog.className='editor-help';newDialog.setAttribute('aria-labelledby','new-title');
 newDialog.innerHTML=`<form id="new-form"><div class="eyebrow">01 / PARTI DALLA PIANTA</div><h2 id="new-title">Crea il tuo magazzino.</h2><p>Imposta una pianta rettangolare vuota. Poi aggiungi scaffali, postazioni e percorsi dal catalogo, disponili in 2D e osserva il risultato in 3D.</p><label>Nome<input name="name" maxlength="100" value="Il mio magazzino" required></label><div class="dimensions"><label>Larghezza · m<input name="width" type="number" min="16" max="60" value="30" required></label><label>Profondità · m<input name="depth" type="number" min="16" max="60" value="24" required></label></div><p>Da 16 a 60 metri per lato. Il nuovo progetto sostituisce la bozza di questa sessione: esportala prima se vuoi conservarne una copia. Puoi annullare la creazione dall’editor.</p><p id="new-error" role="status"></p><button type="submit" class="primary">Crea pianta vuota →</button><button type="button" id="new-cancel">Torna al progetto</button></form>`;
 document.body.append(newDialog);$('#new-project').onclick=()=>newDialog.showModal();$('#new-cancel').onclick=()=>newDialog.close();
-$('#new-form').onsubmit=e=>{e.preventDefault();const data=new FormData(e.target);try{const empty=blankWarehouse(data.get('name'),data.get('width'),data.get('depth'));detachCloud();commit(()=>{project=empty;selected=null;tab='design';});setView('2d');document.body.classList.remove('expanded','inspector-open');newDialog.close();toast('Pianta creata e salvata sul dispositivo. Aggiungi gli elementi dal catalogo.');}catch(error){$('#new-error').textContent=error.message;}};
+$('#new-form').onsubmit=e=>{e.preventDefault();const data=new FormData(e.target);try{const empty=blankWarehouse(data.get('name'),data.get('width'),data.get('depth'));detachCloud();commit(()=>{project=empty;selected=null;tab='design';});setView('2d');document.body.classList.remove('expanded','inspector-open');newDialog.close();simulationGuide?.open();toast('Pianta creata e salvata sul dispositivo. Aggiungi gli elementi dal catalogo.');}catch(error){$('#new-error').textContent=error.message;}};
 $('#project-name').onchange=e=>{const name=e.target.value.trim();if(!name){updateUI();return;}commit(()=>project.name=name.slice(0,100));};
 $('#save-project').onclick=()=>{save();toast($('#save-status').textContent);};
 $('#export').onclick=()=>{const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.href=url;a.download=(project.name||'warehouse-lab').replace(/[<>:"/\\|?*]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progetto esportato.');};
@@ -164,6 +166,7 @@ if(session!=='personal')$('#save-status').textContent='Salvataggio separato dal 
 if(new URLSearchParams(location.search).get('wide')==='1')expandView(true);
 
 simplifyStudio({view:setView,design:()=>{tab='design';updateUI();}});
+simulationGuide=mountSimulationGuide({getProject:()=>project,save,add:type=>{document.querySelector(`[data-add="${type}"]`).click();setView('2d');}});
 mountAccount({getProject:()=>project,getBinding:()=>cloudBinding,saveLocal:save,setBinding:b=>{cloudBinding=b;try{localStorage.setItem(storageKey+'-binding',JSON.stringify(b));storageKey='warehouse-draft-'+b.owner+'-'+b.id;localStorage.setItem(storageKey,JSON.stringify(project));}catch{}const url=new URL(location.href);url.searchParams.set('project',b.id);url.searchParams.delete('new');url.searchParams.delete('templates');window.history.replaceState(null,'',url);}});
 
 export async function finishLoading(){

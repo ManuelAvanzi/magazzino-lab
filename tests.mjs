@@ -158,3 +158,12 @@ test('Simulazione guidata: entrata, uscita e conservazione delle quantità',()=>
  assert.equal(s.mode,'complete');assert.equal(s.shipped,3);assert.equal(quantities(s).stock,7);assert.equal(advance(s),false);assert.equal(s.log.length,stages.length);
 });
 test('Simulazione guidata: pausa e riavvio indipendente',()=>{const s=newSimulation();s.mode='paused';assert.equal(advance(s),false);assert.equal(quantities(s).total,6);const other=newSimulation();s.stock.cartons=0;assert.equal(other.stock.cartons,3);});
+
+import {inspectSimulation,simulationSnapshot} from './simulation-layout.js';
+test('Layout simulazione: requisiti, percorsi e copia senza modificare il progetto',()=>{
+ const p={version:1,name:'Test',width:30,depth:30,objects:[item('receiving',-6,-10),item('rack',-6,0),item('rack',-2,0),item('bench',4,3),item('shipping',6,10),item('pedestrian',-13,0),item('exit',-13,12),item('worker',4,4.3)]};
+ const original=JSON.stringify(p),check=inspectSimulation(p);assert.equal(check.ready,true,JSON.stringify(check.problems));
+ const s=newSimulation();s.mode='playing';advance(s);const snapshot=simulationSnapshot(p,s,check);assert.equal(snapshot.objects.length,p.objects.length+4);assert.equal(JSON.stringify(p),original);assert.equal(snapshot.width,30);
+ p.objects=p.objects.filter(o=>o.type!=='bench');assert.equal(inspectSimulation(p).ready,false);
+});
+test('Layout simulazione: aree sovrapposte e ingombri impediscono avvio',()=>{const p={version:1,width:30,depth:30,objects:[item('receiving',0,0),item('shipping',0,0),item('rack',0,0),item('rack',0,0),item('bench',4,3),item('pedestrian',-13,0),item('exit',-13,12),item('worker',4,4.3)]};assert.equal(inspectSimulation(p).ready,false);});

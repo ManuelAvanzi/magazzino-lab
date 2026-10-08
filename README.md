@@ -134,3 +134,11 @@ Le righe sono visibili solo al proprietario; le scritture passano dalla funzione
 Questa versione include accesso agli account già attivi, archivio con ricerca e salvataggio/riapertura. Non include registrazione pubblica o recupero password dall’interfaccia. Le copertine dell’archivio sono immagini illustrative comuni del laboratorio.
 
 Il bundle ufficiale Supabase è incluso in `vendor/supabase.js`; per aggiornarlo usare `npm run bundle:account`. I test del database sono eseguiti con PGlite e controllano accessi anonimi, separazione tra utenti, scritture dirette vietate e revisioni.
+
+
+### Simulazione sul proprio magazzino
+Nell’editor, Guida alla simulazione presenta sette requisiti e spiega cosa aggiungere e perché. Si apre anche dopo la creazione di una pianta nuova. Ogni requisito mancante offre un pulsante di inserimento; l’utente dispone gli elementi in pianta. Il comando Laboratorio → Simula il mio magazzino apre gli stessi controlli.
+
+L’avvio richiede ricevimento, due scaffali, banco, spedizioni, percorso pedonale, uscita e operatore; controlla inoltre interferenze, separazione delle aree, posizioni libere e raggiungibilità del lotto su griglia. È una verifica didattica, non una certificazione normativa o delle manovre dei mezzi.
+
+La simulazione riceve una copia dello stato corrente via sessionStorage, conserva geometria e attrezzature del progetto e rappresenta un lotto simbolico su due scaffali. Le scorte del resto dell’allestimento non sono contabilizzate. Il ritorno apre la sessione dell’editor originale; le operazioni non modificano il documento salvato. L’indirizzo temporaneo con layout funziona nella stessa scheda; il parametro project può aprire un progetto online per un utente autorizzato. Un layout mancante o non idoneo viene bloccato, senza sostituirlo con la demo.

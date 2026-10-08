@@ -1,3 +1,4 @@
+import {inspectSimulation,simulationSnapshot} from './simulation-layout.js';
 import {WarehouseScene} from './warehouse-scene.js';
 import {item} from './model.js';
 
@@ -15,7 +16,7 @@ export function simulatorProject(state){
  return {version:1,width:28,depth:26,objects};
 }
 export class SimulatorScene{
- constructor(container){this.scene=new WarehouseScene(container,()=>this.scene.setMotion(this.active));this.scene.setLighting('golden');}
+ constructor(container,source=null){this.source=source;this.inspection=source?inspectSimulation(source):null;this.scene=new WarehouseScene(container,()=>this.scene.setMotion(this.active));this.scene.setLighting('golden');}
  frame(){
   const s=this.scene;s.center();
   s.camera.position.sub(s.controls.target).multiplyScalar(.86).add(s.controls.target);
@@ -23,7 +24,7 @@ export class SimulatorScene{
  }
  update(state){
   const key=JSON.stringify([state.stock,state.capacity,state.fastPacking,state.receiving,state.preparing,state.orders.filter(o=>o.status==='ready').map(o=>[o.id,o.type,o.qty])]);
-  if(key!==this.key){this.scene.build(simulatorProject(state));this.key=key;}
+  if(key!==this.key){this.scene.build(this.source?simulationSnapshot(this.source,state,this.inspection):simulatorProject(state));this.key=key;}
   this.active=state.mode==='playing';this.scene.setMotion(this.active);
  }
 }

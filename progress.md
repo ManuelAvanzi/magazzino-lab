@@ -43,3 +43,6 @@ Creazione da zero: ingresso home, modulo pianta rettangolare, nome progetto, boz
 
 ## Simulazione guidata entrata / uscita
 Rimossi gioco, turni, scadenze e punteggi dall’interfaccia della simulazione. Introdotte sette tappe, azioni spiegate, controlli, ripasso e bilancio quantitativo. Verificate tutte le tappe nel browser; 37 test superati e build completata.
+
+## Progetto personale e guida alla simulazione
+Collegato lo stato corrente dell’editor al percorso guidato, con copia indipendente e ritorno alla sessione originale. Guida ai sette requisiti, inserimento assistito, blocco avvio per elementi mancanti, interferenze o percorsi interrotti. Verificati in browser avvio su Hub ordini e resi, quantità in ricevimento, layout incompleto bloccato, inserimento requisito e aggiornamento guida. Polo logistico redazione supera i controlli.

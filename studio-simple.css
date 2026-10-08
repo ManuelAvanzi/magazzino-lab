@@ -14,3 +14,5 @@
 .simple-studio .studio-account-link{display:block;padding:11px;color:#3b5545;font-size:12px;border-bottom:1px solid #e0e6dc;margin-bottom:4px}.simple-studio #cloud-status{font-size:9px;line-height:1.4;color:#426e59;max-width:450px}.simple-studio .project-heading{gap:1px}.simple-studio #save-online{font-weight:700;background:#eaf2e5}
 
 .simple-studio #cloud-status{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.simulation-guide{max-width:660px}.simulation-guide article{padding:12px 0;border-bottom:1px solid #dce3d7}.simulation-guide h3{font-size:16px;margin:0}.simulation-guide article p{margin:6px 0}.simulation-guide #simulation-problems{color:#785421;font-size:13px}.simple-studio .simple-workflow{flex-wrap:wrap}@media(max-width:760px){.simple-studio #studio-app>nav{height:auto;min-height:70px}.simple-studio main{height:calc(100dvh - 130px)}}
