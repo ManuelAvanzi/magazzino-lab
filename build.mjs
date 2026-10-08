@@ -5,7 +5,7 @@ import {resolve,dirname} from 'node:path';
 const root=dirname(fileURLToPath(import.meta.url));
 const output=resolve(root,'dist');
 if(dirname(output)!==root)throw new Error('Output must stay in the project directory');
-const files=['index.html','simulator.html','simulator.css','simulator.js','simulator-model.js','simulator-scene.js','studio.html','startup.js','loading.css','flow.css','templates.js','truck-yard.js','app.js','atmosphere.js','editor-model.js','editor-refined.css','editor.css','flow-lesson.js','flow-model.js','home.css','home.js','human-worker.js','model.js','motion.js','plan-editor.js','style.css','warehouse-scene.js','assets','fonts','vendor'];
+const files=['equipment-catalog.js','equipment-models.js','index.html','simulator.html','simulator.css','simulator.js','simulator-model.js','simulator-scene.js','studio.html','startup.js','loading.css','flow.css','templates.js','truck-yard.js','app.js','atmosphere.js','editor-model.js','editor-refined.css','editor.css','flow-lesson.js','flow-model.js','home.css','home.js','human-worker.js','model.js','motion.js','plan-editor.js','style.css','warehouse-scene.js','assets','fonts','vendor'];
 for(const file of files)await stat(resolve(root,file));
 await rm(output,{recursive:true,force:true});
 await mkdir(output,{recursive:true});

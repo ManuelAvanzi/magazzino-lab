@@ -18,3 +18,10 @@ Creazione da zero: ingresso home, modulo pianta rettangolare, nome progetto, boz
 - Nuova immagine illustrativa in aula generata con image_gen, compressa WebP; due viste animate reali del laboratorio conservate.
 - Collegamenti a pianta vuota, scelta template e simulatore; accesso template apre il dialogo dopo il caricamento senza sostituire il progetto.
 - Build e 33 test passati; controllo browser desktop/mobile, immagini e menu.
+
+
+## 2026-10-08 — Modelli e hub ordini e resi
+- Sei nuove attrezzature: carrello a due ruote, contenitore industriale, cassette impilabili (glTF Poly Haven CC0 con PBR 2K), rulliera, roll container e bilancia originali. Geometrie e materiali condivisi tra istanze; asset locali e crediti inclusi.
+- Catalogo ampliato a 21 voci con filtro Novità e spiegazioni delle nuove attrezzature. Aree ricevimento e controllo/resi aggiunte.
+- Terzo template: Hub ordini e resi, 60x54 m, 128 elementi, 64 scaffali, quattro famiglie merce, reparto picking e resi, preparazione e spedizione, camion. Sessione dedicata fulfillment e link in homepage.
+- Verificati: zero interferenze, sette fasi del flusso raggiungibili, roundtrip JSON, anteprime, dettaglio modelli e pianta 2D.

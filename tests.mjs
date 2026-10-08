@@ -138,3 +138,14 @@ test('Guida merce: indica preparazione, spedizione, rifornimento e attesa con mo
 
 import {blankWarehouse} from "./model.js";
 test("Progetto da zero: pianta vuota indipendente e riapribile",()=>{const p=blankWarehouse("Deposito scuola",32,24);assert.equal(p.objects.length,0);assert.equal(p.width,32);assert.deepEqual(validate(JSON.parse(JSON.stringify(p))),p);const q=blankWarehouse();p.objects.push(item("rack"));assert.equal(q.objects.length,0);assert.throws(()=>blankWarehouse("Prova",10,24));});
+
+test('Hub ordini e resi: nuovi modelli, ingombri e flussi coerenti, salvataggio indipendente',()=>{
+ const t=warehouseTemplates.find(t=>t.id==='fulfillment'),p=t.create();
+ assert.equal(p.objects.filter(o=>o.type==='rack').length,64);
+ assert.equal(p.objects.length,128);
+ for(const type of ['handTruck','industrialBin','crateStack','rollerConveyor','rollCage','parcelScale','receiving','returns'])assert.ok(p.objects.some(o=>o.type===type),type);
+ assert.deepEqual(analyze(p),[]);
+ assert.deepEqual(validate(JSON.parse(JSON.stringify(p))),p);
+ const lesson=makeFlowLesson(p);assert.equal(lesson.error,undefined);assert.equal(lesson.stages.length,7);
+ const copy=t.create();assert.notEqual(copy.objects[0].id,p.objects[0].id);p.objects[0].x=90;assert.notEqual(copy.objects[0].x,90);
+});
