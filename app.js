@@ -152,7 +152,8 @@ if(new URLSearchParams(location.search).get('wide')==='1')expandView(true);
 export async function finishLoading(){
  await studio.renderer.compileAsync(studio.scene,studio.camera);
  studio.composer.render();studio.needsRender=true;
- if(new URLSearchParams(location.search).get('new')==='1'){newDialog.showModal();const url=new URL(location.href);url.searchParams.delete('new');window.history.replaceState(null,'',url);}
+ if(new URLSearchParams(location.search).get('templates')==='1'){templateDialog.showModal();const url=new URL(location.href);url.searchParams.delete('templates');window.history.replaceState(null,'',url);}
+ else if(new URLSearchParams(location.search).get('new')==='1'){newDialog.showModal();const url=new URL(location.href);url.searchParams.delete('new');window.history.replaceState(null,'',url);}
 }
 export function loadCatalogPreviews(){
  return studio.previews(catalog,(type,url)=>{const img=document.querySelector(`[data-add="${type}"] .thumb img`);if(img){img.src=url;img.hidden=false;}});

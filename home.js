@@ -1,7 +1,7 @@
 const scenes = {
+  classe: ['assets/homepage/warehouse-classroom.webp', 'Studenti e docente configurano un magazzino virtuale: immagine illustrativa'],
   stoccaggio: ['assets/homepage/lab-stoccaggio.jpg', 'Rendering del laboratorio: scaffalature portapallet, corsia mezzi e carrelli elevatori'],
-  ricevimento: ['assets/homepage/lab-ricevimento.jpg', 'Rendering del laboratorio: baie di ricevimento e carrello elevatore'],
-  imballaggio: ['assets/homepage/lab-imballaggio.jpg', 'Rendering del laboratorio: banchi imballaggio e scaffalature']
+  ricevimento: ['assets/homepage/lab-ricevimento.jpg', 'Rendering del laboratorio: baie di ricevimento e carrello elevatore']
 };
 const hero = document.querySelector('#hero-image');
 const heroSection = document.querySelector('.hero');
@@ -35,8 +35,8 @@ function scheduleMotion() {
   const running = !paused && heroVisible && !document.hidden;
   heroSection.classList.toggle('motion-stopped', !running);
   layers.forEach(({film, name}, i) => {
-    film.classList.toggle('active', i === activeScene && desktopMotion.matches && !reducedMotion.matches);
-    if (running && i === activeScene && desktopMotion.matches && !reducedMotion.matches) {
+    film.classList.toggle('active', name !== 'classe' && i === activeScene && desktopMotion.matches && !reducedMotion.matches);
+    if (running && name !== 'classe' && i === activeScene && desktopMotion.matches && !reducedMotion.matches) {
       if (!film.hasAttribute('src')) film.src = `assets/homepage/lab-${name}.webm`;
       film.play().catch(() => film.classList.remove('ready'));
     } else film.pause();
@@ -96,6 +96,6 @@ menu.addEventListener('click', () => {
 nav.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
 document.addEventListener('keydown', event => { if (event.key === 'Escape') closeMenu(); });
 try {
-  const saved = JSON.parse(localStorage.getItem('magazzino-lab-v1'));
+  const saved = JSON.parse(localStorage.getItem('magazzino-lab-v1-plan'));
   if (saved?.version === 1 && Array.isArray(saved.objects)) document.querySelector('#resume').innerHTML = 'Riprendi il tuo progetto <span>→</span>';
 } catch { /* Accesso al laboratorio disponibile anche senza salvataggi. */ }

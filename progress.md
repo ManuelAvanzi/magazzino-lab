@@ -11,3 +11,10 @@ Simulatore centrato sulle merci: rimossi denaro e incassi dal motore e dalla UI;
 Vista HUD: scena estesa a tutta finestra, camera ravvicinata, indicatori e comandi sovrapposti, pannelli con scroll interno e comando Nascondi/Mostra. Verificati preparazione ordine, toggle pannelli, screenshot e console priva di errori. Build superata.
 
 Creazione da zero: ingresso home, modulo pianta rettangolare, nome progetto, bozza separata e ripresa dalla home, salvataggio esplicito ed export nominato. 33 test e build superati. Browser: creata pianta 30x24, aggiunta scaffalatura, JSON scaricato e letto, reload conserva 1 oggetto in Pianta 2D; nessun errore console.
+
+
+## 2026-10-08 — Homepage didattica
+- Struttura breve coerente con Exhibition Lab: hero, spiegazione didattica, tre attività e footer.
+- Nuova immagine illustrativa in aula generata con image_gen, compressa WebP; due viste animate reali del laboratorio conservate.
+- Collegamenti a pianta vuota, scelta template e simulatore; accesso template apre il dialogo dopo il caricamento senza sostituire il progetto.
+- Build e 33 test passati; controllo browser desktop/mobile, immagini e menu.
