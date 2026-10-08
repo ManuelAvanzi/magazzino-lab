@@ -1,0 +1,11 @@
+Warehouse Lab — immagini delle tappe, 9 ottobre 2026
+Generazione: built-in image_gen, sfondo opaco; nessuna modifica dopo la generazione. Copie PNG nei file inbound.png, packing.png, outbound.png.
+
+inbound.png
+Create a professional photorealistic educational photograph for an Italian warehouse logistics training application. Landscape 3:2 composition. Modern real distribution warehouse receiving bay, a logistics operator in correctly fitted yellow hi-vis vest and safety shoes checks a delivered pallet of cardboard cartons using a handheld barcode scanner while a second operator compares a delivery manifest on a tablet. Realistic proportions, properly grounded pallets, detailed packaging, blue and orange racks in background, green separated pedestrian path, daylight and industrial ceiling lighting. Clear immediately understandable action, restrained premium photography, no text, no logos, no watermarks.
+
+packing.png
+Use case: photorealistic-natural. Asset type: teaching phase card for a warehouse logistics simulator. Create a polished realistic landscape 3:2 photograph of an operator packing an outgoing order at a professional warehouse packing bench. Correctly worn yellow high-visibility vest, realistic hands placing protective paper inside an open cardboard carton, barcode scanner and small label printer on bench, closed labelled parcels grouped beside it, blue and orange shelving softly visible behind. Immediately clear packing action. Daylight plus industrial lighting, authentic detailed materials, no large text, no logos, no watermark.
+
+outbound.png
+Use case: photorealistic-natural. Asset type: educational phase card in a warehouse logistics simulation. Professional realistic landscape 3:2 photograph at an indoor warehouse dispatch dock: sealed cardboard cartons strapped on a wooden pallet in a clearly marked yellow dispatch staging rectangle, operator in yellow hi-vis vest stands safely to one side scanning parcel labels with a handheld scanner and comparing the shipment list on a tablet; an open backed delivery trailer aligned against the loading dock in background. The action is final shipment verification before loading. Premium editorial photography, plausible equipment and human anatomy, fine material details, daylight and industrial lighting, no large text or logos or watermark.

@@ -5,14 +5,14 @@ export function simplifyStudio({view,design}){
  const menu=(label,cls='')=>{const el=document.createElement('details');el.className='studio-menu '+cls;const summary=document.createElement('summary');summary.textContent=label+' ▾';const content=document.createElement('div');content.className='studio-menu-content';el.append(summary,content);return {el,content};};
  const header=$('#studio-app>header'),actions=$('.actions');
  const heading=document.createElement('div');heading.className='project-heading';
- const name=$('#project-name');name.setAttribute('aria-label','Nome del progetto');heading.append(name,$('#save-status'));header.querySelector('.brand').after(heading);
- const projectMenu=menu('Progetto');actions.append(projectMenu.el);
+ const name=$('#project-name');name.setAttribute('aria-label','Nome del progetto');heading.append(name);header.querySelector('.brand').after(heading);
+ const projectMenu=menu('Progetto');actions.append(projectMenu.el);projectMenu.content.append($('#save-status'));
  for(const id of ['new-project','import','save-project','export','capture-view','templates-open'])projectMenu.content.append($('#'+id));
  $('#save-project').textContent='Salva sul dispositivo';$('#export').classList.remove('primary');$('#export').textContent='Esporta file progetto';$('#import').textContent='Apri file progetto';$('#templates-open').textContent='Scegli un template';
  const explore=$('#inside');explore.textContent='Esplora il magazzino';explore.classList.add('primary');actions.append(projectMenu.el,explore);explore.onclick=()=>{design();view('inside');body.classList.add('inspector-closed');body.classList.remove('inspector-open','mobile-library');};
  const nav=$('#studio-app>nav'),workflow=document.createElement('div');workflow.className='simple-workflow';
- const plan=$('#view2d'),scene=$('#view3d');plan.textContent='01  Pianta 2D';scene.textContent='02  Allestimento 3D';workflow.append(plan,scene);
- const lab=menu('Laboratorio');for(const selector of ['[data-tab="safety"]','[data-tab="flows"]','[data-tab="learn"]','nav button[onclick]'])lab.content.append($(selector));
+ const plan=$('#view2d'),scene=$('#view3d');plan.textContent='01  Pianta 2D';scene.textContent='02  Allestimento 3D';const flows=$('[data-tab="flows"]');flows.textContent='03  Flussi';workflow.append(plan,scene,flows);
+ const lab=menu('Laboratorio');for(const selector of ['[data-tab="safety"]','[data-tab="learn"]','nav button[onclick]'])lab.content.append($(selector));
  const oldDesign=$('[data-tab="design"]');oldDesign.hidden=true;lab.content.append(oldDesign);
  const panels=menu('Pannelli'),library=$('#library-toggle'),properties=$('#inspector-toggle');library.textContent='Catalogo / Elementi';properties.textContent='Proprietà';panels.content.append(library,properties);
  library.removeAttribute('aria-label');properties.removeAttribute('aria-label');

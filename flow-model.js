@@ -21,11 +21,13 @@ export function flowGrid(project){
  return {nodes,free,nearest,path};
 }
 
-export function makeFlowLesson(project){
+export function makeFlowLesson(project,flowId){
+ if(project.flows?.length)return makeAuthoredFlow(project,project.flows.some(f=>f.id===flowId)?flowId:project.flows[0].id);
  const grid=flowGrid(project),rack=project.objects.filter(o=>o.type==='rack').sort((a,b)=>b.x-a.x||a.z-b.z)[0],bench=project.objects.find(o=>o.type==='bench'),shipping=project.objects.find(o=>o.type==='shipping');
  if(!rack||!bench||!shipping)return {error:'Per osservare il ciclo completo aggiungi almeno una scaffalatura, un banco imballaggio e un’area spedizioni.'};
- const rb=bounds(rack),bb=bounds(bench),sb=bounds(shipping);
- const targets=[{x:0,z:-project.depth/2+2},{x:project.width*.27,z:-project.depth/2+5},{x:rb.x+rb.w/2+1,z:rb.z},{x:bb.x,z:bb.z+bb.d/2+1},{x:sb.x,z:sb.z-sb.d/2-1},project.logisticsYard?{x:Math.min(16,project.width/2-4),z:project.depth/2-1}:{x:Math.min(7,project.width/4),z:-project.depth/2+2}];
+ const rb=bounds(rack),bb=bounds(bench),sb=bounds(shipping),receiving=project.objects.find(o=>o.type==='receiving');
+ const entry=receiving?{x:receiving.x,z:receiving.z+receiving.d/2-1}:{x:0,z:-project.depth/2+2};
+ const targets=[entry,receiving?entry:{x:project.width*.27,z:-project.depth/2+5},{x:rb.x+rb.w/2+1,z:rb.z},{x:bb.x,z:bb.z+bb.d/2+1},{x:sb.x,z:sb.z-sb.d/2-1},project.logisticsYard?{x:Math.min(16,project.width/2-4),z:project.depth/2-1}:{x:Math.min(7,project.width/4),z:-project.depth/2+2}];
  const ids=targets.map(p=>grid.nearest(p));
  if(ids.some(i=>i<0))return {error:'Una delle tappe non ha spazio libero vicino. Libera ricevimento, accesso allo scaffale, banco e spedizioni.'};
  const points=ids.map(i=>grid.nodes[i]);
@@ -47,4 +49,31 @@ export function makeFlowLesson(project){
 export function alongFlow(path,progress){
  if(path.length===1)return {...path[0]};const d=Math.max(0,Math.min(1,progress))*(path.length-1),i=Math.min(path.length-2,Math.floor(d)),t=d-i;
  return {x:path[i].x+(path[i+1].x-path[i].x)*t,z:path[i].z+(path[i+1].z-path[i].z)*t};
+}
+
+export function makeAuthoredFlow(project,flowId){
+ const flow=project.flows?.find(f=>f.id===flowId);
+ if(!flow||flow.steps.length<2)return {error:'Aggiungi almeno due tappe e scegli le postazioni da collegare.'};
+ const grid=flowGrid(project),stages=[];let previous=null;
+ for(const [i,s] of flow.steps.entries()){
+  if(!s.title.trim()||!s.why.trim()||!s.check.trim())return {error:`Tappa ${i+1}: completa titolo, operazione e verifica da effettuare.`};
+  const object=project.objects.find(o=>o.id===s.objectId);
+  if(!object)return {error:`Tappa ${i+1}: scegli una postazione presente nel magazzino.`};
+  const b=bounds(object),candidates=isZone(object)?[{x:b.x,z:b.z}]:[{x:b.x-b.w/2-1,z:b.z},{x:b.x+b.w/2+1,z:b.z},{x:b.x,z:b.z-b.d/2-1},{x:b.x,z:b.z+b.d/2+1}];
+  let chosen=null;
+  for(const target of candidates){const id=grid.nearest(target,2);if(id<0)continue;const path=previous===null?[grid.nodes[id]]:grid.path(previous,id);if(path&&(!chosen||path.length<chosen.path.length))chosen={id,path};}
+  if(!chosen)return {error:`Tappa ${i+1}: libera un accesso a ${object.name} e un collegamento con la tappa precedente.`};
+  previous=chosen.id;stages.push({name:s.title,text:s.why,question:s.check,kind:s.kind,point:grid.nodes[chosen.id],path:chosen.path,image:s.image,objectId:s.objectId});
+ }
+ return {stages,authored:true,name:flow.name};
+}
+export function suggestedFlow(project){
+ const find=type=>project.objects.find(o=>o.type===type)?.id||'';
+ return {id:crypto.randomUUID(),name:'Dall’arrivo alla spedizione',steps:[
+  ['Ricevimento','receiving','in','inbound','Separa la merce in arrivo dalle scorte disponibili.','Confronta quantità e documento di trasporto.'],
+  ['Controllo della consegna','receiving','in','inbound','Verifica integrità e identificazione prima di accettare la merce.','In caso di danni, separa e segnala il collo.'],
+  ['Stoccaggio','rack','in','inbound','Assegna e registra una posizione per ritrovare la merce.','La corsia e l’accesso allo scaffale sono liberi?'],
+  ['Prelievo e imballaggio','bench','out','packing','Preleva gli articoli richiesti e proteggili per il trasporto.','Controlla articolo, quantità ed etichetta.'],
+  ['Consolidamento e uscita','shipping','out','outbound','Riunisci i colli della stessa spedizione e registra la consegna al vettore.','Tutti i colli previsti sono presenti?']
+ ].map(([title,type,kind,image,why,check])=>({id:crypto.randomUUID(),title,objectId:find(type),kind,image,why,check}))};
 }

@@ -9,7 +9,7 @@ export class FlowLesson{
   studio.container.append(this.hud);this.hudFill=this.hud.querySelector('i');
  }
  disposeVisuals(){this.group.traverse(o=>{o.geometry?.dispose();if(o.material){o.material.map?.dispose();o.userData.fullMap?.dispose();o.userData.numberMap?.dispose();o.material.dispose();}});this.group.clear();}
- build(project){this.disposeVisuals();this.data=makeFlowLesson(project);this.index=this.filter==='out'?3:0;this.elapsed=0;this.playing=false;this.held=false;this.cargo=null;this.markers=[];this.routes=[];this.particles=[];this.leaders=[];if(this.data.error)return;
+ build(project){this.disposeVisuals();this.data=makeFlowLesson(project,this.flowId);this.index=this.filter==='out'?3:0;this.elapsed=0;this.playing=false;this.held=false;this.cargo=null;this.markers=[];this.routes=[];this.particles=[];this.leaders=[];if(this.data.error)return;
   const material=color=>new T.MeshBasicMaterial({color,transparent:true,opacity:1,depthTest:false,depthWrite:false,toneMapped:false});
   this.data.stages.forEach((stage,i)=>{
    if(stage.path.length>1){const points=stage.path.map(p=>new T.Vector3(p.x,.15,p.z));const curve=new T.CurvePath();for(let n=1;n<points.length;n++)curve.add(new T.LineCurve3(points[n-1],points[n]));const line=new T.Mesh(new T.TubeGeometry(curve,points.length*2,.15,6,false),material(colors[stage.kind]));line.renderOrder=6;line.userData.kind=stage.kind;line.userData.stage=i;this.group.add(line);this.routes.push(line);
@@ -18,7 +18,7 @@ export class FlowLesson{
    }
    const canvas=document.createElement('canvas');canvas.width=canvas.height=128;const c=canvas.getContext('2d');
    c.shadowColor='#081d2866';c.shadowBlur=10;c.shadowOffsetY=4;c.fillStyle='#f8fcfa';c.beginPath();c.roundRect(14,14,100,100,34);c.fill();c.shadowColor='transparent';c.strokeStyle=colors[stage.kind];c.lineWidth=5;c.stroke();
-   c.fillStyle='#23453e';c.font='600 43px "DM Sans", Arial';c.textAlign='center';c.textBaseline='middle';c.fillText(i===2?'3·4':String(i+1).padStart(2,'0'),64,66);
+   c.fillStyle='#23453e';c.font='600 43px "DM Sans", Arial';c.textAlign='center';c.textBaseline='middle';c.fillText(String(i+1).padStart(2,'0'),64,66);
    const texture=new T.CanvasTexture(canvas);texture.colorSpace=T.SRGBColorSpace;
    const label=new T.Sprite(new T.SpriteMaterial({map:texture,depthTest:false,depthWrite:false,toneMapped:false}));label.position.set(stage.point.x,.65,stage.point.z);label.renderOrder=10;this.group.add(label);this.markers.push(label);
    const leader=new T.Line(new T.BufferGeometry().setFromPoints([new T.Vector3(),new T.Vector3()]),new T.LineBasicMaterial({color:colors[stage.kind],transparent:true,opacity:.5,depthTest:false,depthWrite:false,toneMapped:false}));leader.renderOrder=9;this.group.add(leader);this.leaders.push(leader);
@@ -37,11 +37,11 @@ export class FlowLesson{
  next(){const ids=this.stages,next=ids.indexOf(this.index)+1;this.go(ids[Math.min(ids.length-1,next)]??0);}
  get duration(){return Math.min(14,Math.max(5,(this.current?.path.length||1)*.18+3));}
  update(dt){this.group.visible=this.enabled&&this.studio.mode!=='2d';if(!this.group.visible||this.data?.error)return;this.sizeLabels();if(!this.playing)return;
-  this.elapsed+=dt*this.speed;if(this.elapsed>=this.duration){const ids=this.stages,n=ids.indexOf(this.index)+1;if(n>=ids.length){this.elapsed=this.duration;this.playing=false;}else{this.index=ids[n];this.elapsed=0;}this.onChange?.();}
+  this.elapsed+=dt*this.speed;if(this.elapsed>=this.duration){const ids=this.stages,n=ids.indexOf(this.index)+1;if(this.singleStep||n>=ids.length){this.elapsed=this.duration;this.playing=false;}else{this.index=ids[n];this.elapsed=0;}this.onChange?.();}
   this.sync();this.studio.needsRender=true;
  }
- sync(){if(!this.current||!this.cargo)return;const progress=Math.min(1,this.elapsed/Math.max(1,this.duration-2)),pos=alongFlow(this.current.path,progress);this.cargo.position.set(pos.x,0,pos.z);this.cargo.visible=!(this.index===6&&this.elapsed>=this.duration);this.halo.material.color.set(this.held?'#e36d68':colors[this.current.kind]);
-  this.markers.forEach((m,i)=>{m.visible=this.stages.includes(i)&&!(i===3&&this.index!==3)&&!(i===2&&this.index===3);m.material.opacity=i===this.index?1:.8;});this.routes.forEach(r=>{r.visible=this.filter==='all'||r.userData.kind===this.filter;r.material.opacity=r.userData.stage===this.index ? 1 : r.userData.kind===this.current.kind ? .55 : .3;});
+ sync(){if(!this.current||!this.cargo)return;const progress=Math.min(1,this.elapsed/Math.max(1,this.duration-2)),pos=alongFlow(this.current.path,progress);this.cargo.position.set(pos.x,0,pos.z);this.cargo.visible=true;this.halo.material.color.set(this.held?'#e36d68':colors[this.current.kind]);
+  this.markers.forEach((m,i)=>{m.visible=this.stages.includes(i);m.material.opacity=i===this.index?1:.8;});this.routes.forEach(r=>{r.visible=this.filter==='all'||r.userData.kind===this.filter;r.material.opacity=r.userData.stage===this.index ? 1 : r.userData.kind===this.current.kind ? .55 : .3;});
   this.particles.forEach((dot,i)=>{dot.visible=this.current.path.length>1&&!this.held&&progress<1;const p=alongFlow(this.current.path,(progress+i/3)%1);dot.position.set(p.x,.23,p.z);dot.material.color.set(colors[this.current.kind]);dot.material.opacity=1-i*.22;});
   this.updateHud();this.studio.needsRender=true;
  }

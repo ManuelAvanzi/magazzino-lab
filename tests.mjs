@@ -167,3 +167,20 @@ test('Layout simulazione: requisiti, percorsi e copia senza modificare il proget
  p.objects=p.objects.filter(o=>o.type!=='bench');assert.equal(inspectSimulation(p).ready,false);
 });
 test('Layout simulazione: aree sovrapposte e ingombri impediscono avvio',()=>{const p={version:1,width:30,depth:30,objects:[item('receiving',0,0),item('shipping',0,0),item('rack',0,0),item('rack',0,0),item('bench',4,3),item('pedestrian',-13,0),item('exit',-13,12),item('worker',4,4.3)]};assert.equal(inspectSimulation(p).ready,false);});
+
+import {makeAuthoredFlow,suggestedFlow} from './flow-model.js';
+test('Flussi personali: salvataggio, ordine e percorso continuo senza modificare gli oggetti',()=>{
+ const p=warehouseTemplates.find(t=>t.id==='fulfillment').create(),before=JSON.stringify(p.objects);p.flows=[suggestedFlow(p)];
+ const saved=validate(JSON.parse(JSON.stringify(p)));assert.deepEqual(saved.flows,p.flows);
+ const result=makeAuthoredFlow(saved,saved.flows[0].id);assert.equal(result.error,undefined);assert.equal(result.stages.length,5);
+ for(let i=1;i<result.stages.length;i++)assert.deepEqual(result.stages[i].path[0],result.stages[i-1].point);
+ assert.equal(JSON.stringify(p.objects),before);
+ saved.flows[0].steps.reverse();const reverse=makeAuthoredFlow(saved,saved.flows[0].id);assert.equal(reverse.stages[0].name,'Consolidamento e uscita');
+});
+test('Flussi personali: riferimenti cancellati, nessuna tappa, limiti e stringhe non valide',()=>{
+ const p=warehouseTemplates.find(t=>t.id==='fulfillment').create();p.flows=[suggestedFlow(p)];p.flows[0].steps[0].objectId='missing';assert.match(makeAuthoredFlow(p,p.flows[0].id).error,/Tappa 1/);
+ p.flows[0].steps=[];assert.match(makeAuthoredFlow(p,p.flows[0].id).error,/almeno due/);
+ p.flows=[suggestedFlow(p)];p.flows[0].steps[0].image='../bad';assert.throws(()=>validate(p));
+ p.flows=[suggestedFlow(p)];p.flows[0].steps[0].why={};assert.throws(()=>validate(p));
+ p.flows=Array(13).fill(suggestedFlow(p));assert.throws(()=>validate(p));
+});
