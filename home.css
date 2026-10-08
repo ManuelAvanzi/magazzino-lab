@@ -25,3 +25,5 @@
 @media(prefers-reduced-motion:reduce){.hero-scenes .hero-still.active{animation:none}}
 /* Prevent keyboard/locator focus from scrolling the clipped hero internally. */
 .hero{overflow:clip}
+
+.hero-bottom{justify-content:flex-end}
