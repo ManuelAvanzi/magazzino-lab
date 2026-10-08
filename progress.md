@@ -25,3 +25,10 @@ Creazione da zero: ingresso home, modulo pianta rettangolare, nome progetto, boz
 - Catalogo ampliato a 21 voci con filtro Novità e spiegazioni delle nuove attrezzature. Aree ricevimento e controllo/resi aggiunte.
 - Terzo template: Hub ordini e resi, 60x54 m, 128 elementi, 64 scaffali, quattro famiglie merce, reparto picking e resi, preparazione e spedizione, camion. Sessione dedicata fulfillment e link in homepage.
 - Verificati: zero interferenze, sette fasi del flusso raggiungibili, roundtrip JSON, anteprime, dettaglio modelli e pianta 2D.
+
+
+## 2026-10-08 — Editor semplificato
+- Struttura ispirata a Exhibition Lab: Pianta 2D / Allestimento 3D, menu Progetto, Laboratorio e Pannelli.
+- Pannello sinistro a schede Spazio / Catalogo / Elementi, proprietà contestuali, controlli scena raccolti e indicatori compatti.
+- Verificati in browser: avvio, cambio vista, menu file, selezione e proprietà, flussi e apertura catalogo mobile a 390 px.
+- npm test: 34/34; npm run build completata.

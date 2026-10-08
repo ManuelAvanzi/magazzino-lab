@@ -1,3 +1,4 @@
+import {simplifyStudio} from './studio-simple.js';
 import {warehouseTemplates} from './templates.js';
 import {FlowLesson} from './flow-lesson.js';
 import { WarehouseScene } from './warehouse-scene.js';
@@ -40,7 +41,7 @@ function duplicateSelected(){const o=project.objects.find(o=>o.id===selected);if
 function deleteSelected(){if(!selected)return;commit(()=>{project.objects=project.objects.filter(o=>o.id!==selected);selected=null;});toast('Elemento eliminato. Ctrl+Z per annullare.');}
 function updateTools(){
   $('#redo').disabled=!future.length;
-  const choice=project.objects.find(o=>o.id===selected);
+  const choice=project.objects.find(o=>o.id===selected);document.body.classList.toggle('has-selection',!!choice);
   $('#selection-info').textContent=choice?choice.name:'Nessuna selezione';$('#quick-rotate').disabled=!choice;$('#move-plan').disabled=!choice;
   $('#object-count').textContent=project.objects.length;
   $('#object-list').innerHTML=project.objects.map(o=>`<button data-object="${esc(o.id)}" aria-pressed="${o.id===selected}"><span>${esc(o.name)}</span><small>${o.x} / ${o.z} m</small></button>`).join('');
@@ -151,6 +152,8 @@ if(session==='exercise'){studio.setMotion(false,true);openInspector();}
 if(session!=='personal')$('#save-status').textContent='Salvataggio separato dal progetto personale';
 
 if(new URLSearchParams(location.search).get('wide')==='1')expandView(true);
+
+simplifyStudio({view:setView,design:()=>{tab='design';updateUI();}});
 
 export async function finishLoading(){
  await studio.renderer.compileAsync(studio.scene,studio.camera);
