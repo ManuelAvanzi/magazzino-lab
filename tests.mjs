@@ -149,3 +149,12 @@ test('Hub ordini e resi: nuovi modelli, ingombri e flussi coerenti, salvataggio 
  const lesson=makeFlowLesson(p);assert.equal(lesson.error,undefined);assert.equal(lesson.stages.length,7);
  const copy=t.create();assert.notEqual(copy.objects[0].id,p.objects[0].id);p.objects[0].x=90;assert.notEqual(copy.objects[0].x,90);
 });
+
+
+import {newSimulation,advance,quantities,stages} from './guided-simulation.js';
+test('Simulazione guidata: entrata, uscita e conservazione delle quantità',()=>{
+ const s=newSimulation();assert.equal(advance(s),false);s.mode='playing';
+ for(let i=0;i<7;i++){assert.equal(advance(s),true);assert.equal(s.step,i+1);const q=quantities(s);assert.equal(q.total+s.shipped,10);if(i===0)assert.equal(q.receiving,4);if(i===2)assert.equal(q.stock,10);if(i===3)assert.equal(q.preparing,3);if(i===5)assert.equal(q.outgoing,3);}
+ assert.equal(s.mode,'complete');assert.equal(s.shipped,3);assert.equal(quantities(s).stock,7);assert.equal(advance(s),false);assert.equal(s.log.length,stages.length);
+});
+test('Simulazione guidata: pausa e riavvio indipendente',()=>{const s=newSimulation();s.mode='paused';assert.equal(advance(s),false);assert.equal(quantities(s).total,6);const other=newSimulation();s.stock.cartons=0;assert.equal(other.stock.cartons,3);});

@@ -115,13 +115,10 @@ La voce **Template** offre il magazzino didattico originale (48 × 40 m, 48 modu
 Il camion rigido si accosta in retromarcia alla baia esterna, sosta e riparte lungo l’accesso dedicato. Avvia/Pausa controlla anche questo ciclo; **Inquadra camion** avvicina la vista al piazzale. Si tratta di un ciclo dimostrativo: non simula trasferimenti fisici dal camion, inventario o manovre certificate. La baia di uscita dei flussi merci punta al piazzale nel template avanzato. Il piazzale non contribuisce alla superficie interna indicata e non è editabile nella pianta 2D.
 
 
-### Simulatore gestionale
-La sezione Simulatore, accessibile dalla home e dalla scheda 05 dell’editor, apre `simulator.html`: un gioco a turni con lo stesso rendering 3D del laboratorio, indipendente dal progetto salvato. Obiettivo: cinque spedizioni entro 24 tempi, gestendo tre merci, ordini con scadenza, rifornimenti e spazio prenotato. Scaffale e secondo operatore sono risorse opzionali, attivabili impiegando un tempo. Pausa, istruzioni e nuova partita sono disponibili; F attiva lo schermo intero. La partita resta in memoria e si azzera ricaricando la pagina. Il motore puro è verificato da test automatici, inclusa una partita vincente.
+### Simulazione guidata dei flussi merci
+La pagina simulator.html è un percorso didattico in sette tappe: ricevimento, controllo, stoccaggio, prelievo, imballaggio, consolidamento e carico. Ogni tappa presenta l’operazione, cosa verificare, un’azione esplicita e la sua conseguenza. Non include punteggi, scadenze o condizioni di vittoria/sconfitta.
 
-Il simulatore rappresenta ogni unità con un pallet: scorte sugli scaffali e ordini preparati nell’area spedizioni. La scheda Cosa fare adesso e perché propone un pulsante operativo, la conseguenza sulla merce e il tempo richiesto. Il risultato misura ordini completati e unità consegnate; non sono previsti denaro, acquisti o penalità economiche. I loader di editor e simulatore mostrano un rendering locale del laboratorio; il simulatore attende modelli, materiali e compilazione della scena prima di iniziare.
-
-La vista simulatore occupa l’intera finestra sotto la barra del sito: indicatori, scorte, guida e ordini sono pannelli HUD sovrapposti. I pannelli scorrono internamente; Nascondi pannelli libera la scena, Inquadra magazzino ripristina la vista ravvicinata.
-
+Le quantità aggiornano la scena a ogni conferma: 6 unità iniziali, 4 ricevute e 3 spedite, con 7 residue. I pallet rappresentano unità logistiche simboliche; i trasferimenti sono cambiamenti di stato, non animazioni fisiche continue. Si può mettere in pausa, ripassare le tappe svolte o ricominciare. Il percorso resta indipendente dai progetti dell’editor e si azzera ricaricando la pagina.
 
 ### Creazione da pianta
 La home propone Crea da zero e Riprendi progetto. Il percorso `studio.html?session=plan&new=1` apre il modulo nome/dimensioni e crea una pianta rettangolare vuota da 16 a 60 metri per lato. La sessione plan salva una bozza separata da demo, esercizi e progetto personale. Nome e dimensioni restano modificabili; Nuovo crea una nuova pianta con avviso di sostituzione e possibilità di Annulla. Salva conferma il salvataggio sul dispositivo; Esporta progetto scarica il JSON denominato come il progetto, riapribile con Apri.

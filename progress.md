@@ -40,3 +40,6 @@ Creazione da zero: ingresso home, modulo pianta rettangolare, nome progetto, boz
 - Editor: Salva online, nuova copia, archivio, bozze separate e recupero locale; nuove piante/template/import scollegano il documento precedente.
 - Verifica reale da browser locale collegato a Supabase: password errata rifiutata, accesso, salvataggio Hub ordini e resi, logout, nuovo accesso, riapertura e aggiornamento; conflitto fra due schede respinto.
 - Test automatici: 35/35 compreso isolamento database. Controllo visivo desktop e mobile 390 px.
+
+## Simulazione guidata entrata / uscita
+Rimossi gioco, turni, scadenze e punteggi dall’interfaccia della simulazione. Introdotte sette tappe, azioni spiegate, controlli, ripasso e bilancio quantitativo. Verificate tutte le tappe nel browser; 37 test superati e build completata.
