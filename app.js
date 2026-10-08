@@ -1,3 +1,4 @@
+import {openOnlineProject,mountAccount} from './studio-account.js';
 import {simplifyStudio} from './studio-simple.js';
 import {warehouseTemplates} from './templates.js';
 import {FlowLesson} from './flow-lesson.js';
@@ -11,11 +12,20 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'
 let project=warehouseDemo(),selected=null,tab='design',history=[],future=[],mode='3d';
 const requestedSession=new URLSearchParams(location.search).get('session');
 const session=['demo','exercise','plan','fulfillment'].includes(requestedSession)?requestedSession:'personal';
-const storageKey=session==='personal'?'magazzino-lab-v1':`magazzino-lab-v1-${session}`;
+let storageKey=session==='personal'?'magazzino-lab-v1':`magazzino-lab-v1-${session}`;
 if(session==='plan')project=blankWarehouse();
 if(session==='fulfillment')project=warehouseTemplates.find(t=>t.id==='fulfillment').create();
 let restored=false;
 try { const saved=localStorage.getItem(storageKey);if(saved){project=validate(JSON.parse(saved));restored=true;} } catch { toast('Salvataggio non disponibile: aperto il magazzino di esempio.'); }
+let cloudBinding=null;
+const cloudId=new URLSearchParams(location.search).get('project');
+if(cloudId){
+ const loaded=await openOnlineProject(cloudId);cloudBinding={id:loaded.id,owner:loaded.owner,revision:loaded.revision};project=loaded.project;
+ storageKey='warehouse-draft-'+loaded.owner+'-'+loaded.id;
+ try{const draft=JSON.parse(localStorage.getItem(storageKey)||'null');if(draft&&JSON.stringify(draft)!==JSON.stringify(project)&&confirm('Esiste una bozza locale diversa dalla versione online. Vuoi recuperarla?'))project=validate(draft);}catch{}
+ restored=true;
+}else{try{cloudBinding=JSON.parse(localStorage.getItem(storageKey+'-binding')||'null');}catch{}}
+function detachCloud(){cloudBinding=null;const url=new URL(location.href);url.searchParams.delete('project');window.history.replaceState(null,'',url);storageKey=session==='personal'?'magazzino-lab-v1':`magazzino-lab-v1-${session}`;try{localStorage.removeItem(storageKey+'-binding');}catch{}}
 if(session==='demo'&&restored&&isLegacyDemo(project)){project=warehouseDemo();try{localStorage.setItem(storageKey,JSON.stringify(project));}catch{}}
 if(session==='exercise'&&!restored){project=demo();project.objects.push(item('pallet',-11,0),item('pallet',-11,11),item('pallet',-7,-6));}
 if(session==='exercise')tab='safety';
@@ -32,7 +42,7 @@ $('#lighting').onchange=e=>studio.setLighting(e.target.value);
 
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),3500);}
 function openInspector(){document.body.classList.remove('mobile-library');document.body.classList.remove('inspector-closed');document.body.classList.add('inspector-open');}
-function save(){try{localStorage.setItem(storageKey,JSON.stringify(project));$('#save-status').textContent=session==='personal'?'✓ Salvato su questo dispositivo':'✓ Sessione salvata separatamente';}catch{$('#save-status').textContent='Salvataggio non disponibile: esporta il progetto';}}
+function save(){try{localStorage.setItem(storageKey,JSON.stringify(project));if($('#cloud-status'))$('#cloud-status').textContent='Bozza locale salvata · premi Salva online';$('#save-status').textContent=session==='personal'?'✓ Salvato su questo dispositivo':'✓ Sessione salvata separatamente';}catch{$('#save-status').textContent='Salvataggio non disponibile: esporta il progetto';}}
 function commit(action){plan.cancel();future=[];studio.setMotion(false,true);history.push(JSON.stringify(project));if(history.length>40)history.shift();action();save();rebuild();}
 function rebuild(){studio.build(project,selected);plan.render(project,selected,analyze(project));updateUI();updateTools();}
 function setView(view){plan.cancel();if(view==='2d'){if(tab==='flows'){tab='design';updateUI();}studio.setMotion(false,true);studio.flowLesson.playing=false;studio.flowLesson.onChange?.();}mode=view;studio.center(view);plan.setVisible(view==='2d');document.body.classList.toggle('plan-mode',view==='2d');for(const [id,value]of [['view3d','3d'],['view2d','2d'],['inside','inside']])$('#'+id).classList.toggle('active',mode===value);$('#camera-label').textContent={inside:'VISTA INTERNA','3d':'PROSPETTIVA','2d':'PIANTA ORTOGONALE'}[view];$('.hint').textContent=view==='2d'?'Trascina un elemento · Sfondo per spostare la vista · Rotella per zoom · Esc annulla':view==='inside'?'Trascina per esplorare · Rotella per avvicinarti':'Trascina per orbitare · Rotella per zoom · Seleziona e usa Sposta in pianta';updateTools();motionStatus();}
@@ -104,18 +114,18 @@ $('#close-inspector').onclick=()=>{document.body.classList.add('inspector-closed
 const templateDialog=document.createElement('dialog');templateDialog.className='template-dialog';templateDialog.setAttribute('aria-labelledby','templates-title');
 templateDialog.innerHTML=`<form method="dialog"><button aria-label="Chiudi template">×</button></form><div class="eyebrow">SCENARI DI PARTENZA</div><h2 id="templates-title">Scegli il tuo magazzino.</h2><p>Tre template modificabili. Puoi annullare il caricamento e tornare al progetto precedente.</p><div class="template-grid">${warehouseTemplates.map((t,i)=>`<button data-template="${t.id}"><span class="template-number">0${i+1}</span><strong>${t.name}</strong><span class="template-size">${t.size}</span><span>${t.description}</span>${t.objectives?'<span class="template-new">NUOVO · ORDINI E RESI</span>':''}<b>Carica template ↗</b></button>`).join('')}</div><p id="template-feedback" role="status"></p>`;document.body.append(templateDialog);
 $('#showcase').onclick=$('#templates-open').onclick=()=>templateDialog.showModal();
-templateDialog.querySelectorAll('[data-template]').forEach(button=>button.onclick=async()=>{templateDialog.querySelectorAll('[data-template]').forEach(b=>b.disabled=true);$('#template-feedback').textContent='Preparazione dello scenario…';await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));try{const t=warehouseTemplates.find(t=>t.id===button.dataset.template);commit(()=>{project={...t.create(),name:t.name,templateId:t.id};selected=null;tab='design';});setView('3d');studio.setMotion(!matchMedia('(prefers-reduced-motion: reduce)').matches);document.body.classList.remove('mobile-library','inspector-open');templateDialog.close();toast(t.name+' caricato. Annulla ripristina il progetto precedente.');}finally{templateDialog.querySelectorAll('[data-template]').forEach(b=>b.disabled=false);$('#template-feedback').textContent='';}});
+templateDialog.querySelectorAll('[data-template]').forEach(button=>button.onclick=async()=>{templateDialog.querySelectorAll('[data-template]').forEach(b=>b.disabled=true);$('#template-feedback').textContent='Preparazione dello scenario…';await new Promise(resolve=>requestAnimationFrame(()=>setTimeout(resolve,0)));try{const t=warehouseTemplates.find(t=>t.id===button.dataset.template);detachCloud();commit(()=>{project={...t.create(),name:t.name,templateId:t.id};selected=null;tab='design';});setView('3d');studio.setMotion(!matchMedia('(prefers-reduced-motion: reduce)').matches);document.body.classList.remove('mobile-library','inspector-open');templateDialog.close();toast(t.name+' caricato. Annulla ripristina il progetto precedente.');}finally{templateDialog.querySelectorAll('[data-template]').forEach(b=>b.disabled=false);$('#template-feedback').textContent='';}});
 
-function exercise(){commit(()=>{project=demo();project.objects.push(item('pallet',-11,0),item('pallet',-11,11),item('pallet',-7,-6));selected=null;tab='safety';});setView('3d');openInspector();toast('Tre interferenze da risolvere. Annulla ripristina il progetto precedente.');}
+function exercise(){detachCloud();commit(()=>{project=demo();project.objects.push(item('pallet',-11,0),item('pallet',-11,11),item('pallet',-7,-6));selected=null;tab='safety';});setView('3d');openInspector();toast('Tre interferenze da risolvere. Annulla ripristina il progetto precedente.');}
 $('#exercise').onclick=exercise;
 const newDialog=document.createElement('dialog');newDialog.className='editor-help';newDialog.setAttribute('aria-labelledby','new-title');
 newDialog.innerHTML=`<form id="new-form"><div class="eyebrow">01 / PARTI DALLA PIANTA</div><h2 id="new-title">Crea il tuo magazzino.</h2><p>Imposta una pianta rettangolare vuota. Poi aggiungi scaffali, postazioni e percorsi dal catalogo, disponili in 2D e osserva il risultato in 3D.</p><label>Nome<input name="name" maxlength="100" value="Il mio magazzino" required></label><div class="dimensions"><label>Larghezza · m<input name="width" type="number" min="16" max="60" value="30" required></label><label>Profondità · m<input name="depth" type="number" min="16" max="60" value="24" required></label></div><p>Da 16 a 60 metri per lato. Il nuovo progetto sostituisce la bozza di questa sessione: esportala prima se vuoi conservarne una copia. Puoi annullare la creazione dall’editor.</p><p id="new-error" role="status"></p><button type="submit" class="primary">Crea pianta vuota →</button><button type="button" id="new-cancel">Torna al progetto</button></form>`;
 document.body.append(newDialog);$('#new-project').onclick=()=>newDialog.showModal();$('#new-cancel').onclick=()=>newDialog.close();
-$('#new-form').onsubmit=e=>{e.preventDefault();const data=new FormData(e.target);try{const empty=blankWarehouse(data.get('name'),data.get('width'),data.get('depth'));commit(()=>{project=empty;selected=null;tab='design';});setView('2d');document.body.classList.remove('expanded','inspector-open');newDialog.close();toast('Pianta creata e salvata sul dispositivo. Aggiungi gli elementi dal catalogo.');}catch(error){$('#new-error').textContent=error.message;}};
+$('#new-form').onsubmit=e=>{e.preventDefault();const data=new FormData(e.target);try{const empty=blankWarehouse(data.get('name'),data.get('width'),data.get('depth'));detachCloud();commit(()=>{project=empty;selected=null;tab='design';});setView('2d');document.body.classList.remove('expanded','inspector-open');newDialog.close();toast('Pianta creata e salvata sul dispositivo. Aggiungi gli elementi dal catalogo.');}catch(error){$('#new-error').textContent=error.message;}};
 $('#project-name').onchange=e=>{const name=e.target.value.trim();if(!name){updateUI();return;}commit(()=>project.name=name.slice(0,100));};
 $('#save-project').onclick=()=>{save();toast($('#save-status').textContent);};
 $('#export').onclick=()=>{const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(project,null,2)],{type:'application/json'}));a.href=url;a.download=(project.name||'warehouse-lab').replace(/[<>:"/\\|?*]/g,'-')+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Progetto esportato.');};
-$('#import').onclick=()=>$('#file').click();$('#file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>2e6)throw Error('File troppo grande. Massimo 2 MB.');const p=validate(JSON.parse(await file.text()));commit(()=>{project=p;selected=null;});studio.center(mode);toast('Progetto aperto.');}catch(err){toast(err.message);}e.target.value='';};
+$('#import').onclick=()=>$('#file').click();$('#file').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{if(file.size>2e6)throw Error('File troppo grande. Massimo 2 MB.');const p=validate(JSON.parse(await file.text()));detachCloud();commit(()=>{project=p;selected=null;});studio.center(mode);toast('Progetto aperto.');}catch(err){toast(err.message);}e.target.value='';};
 // Persistent, discoverable tools shared by the floor plan and the 3D scene.
 const navigationDock=document.createElement('div');navigationDock.className='navigation-dock';
 navigationDock.innerHTML='<div class="zoom-controls" role="group" aria-label="Navigazione vista"><button id="zoom-out" aria-label="Allontana vista" title="Allontana">−</button><button id="zoom-fit" title="Mostra tutto il magazzino">Adatta</button><button id="zoom-in" aria-label="Avvicina vista" title="Avvicina">+</button></div><button id="help-editor" title="Guida e scorciatoie" aria-label="Guida e scorciatoie">?</button>';
@@ -154,6 +164,7 @@ if(session!=='personal')$('#save-status').textContent='Salvataggio separato dal 
 if(new URLSearchParams(location.search).get('wide')==='1')expandView(true);
 
 simplifyStudio({view:setView,design:()=>{tab='design';updateUI();}});
+mountAccount({getProject:()=>project,getBinding:()=>cloudBinding,saveLocal:save,setBinding:b=>{cloudBinding=b;try{localStorage.setItem(storageKey+'-binding',JSON.stringify(b));storageKey='warehouse-draft-'+b.owner+'-'+b.id;localStorage.setItem(storageKey,JSON.stringify(project));}catch{}const url=new URL(location.href);url.searchParams.set('project',b.id);url.searchParams.delete('new');url.searchParams.delete('templates');window.history.replaceState(null,'',url);}});
 
 export async function finishLoading(){
  await studio.renderer.compileAsync(studio.scene,studio.camera);

@@ -32,3 +32,11 @@ Creazione da zero: ingresso home, modulo pianta rettangolare, nome progetto, boz
 - Pannello sinistro a schede Spazio / Catalogo / Elementi, proprietà contestuali, controlli scena raccolti e indicatori compatti.
 - Verificati in browser: avvio, cambio vista, menu file, selezione e proprietà, flussi e apertura catalogo mobile a 390 px.
 - npm test: 34/34; npm run build completata.
+
+
+## 2026-10-08 — Account online Warehouse Lab
+- Pulsante Accedi / I miei progetti nella homepage, pagina login e archivio coerenti con Exhibition Lab.
+- Backend Supabase esistente, archivio separato warehouse_projects, RLS proprietario e RPC con revisioni atomiche. Account redazione verificato senza includere credenziali nel sito.
+- Editor: Salva online, nuova copia, archivio, bozze separate e recupero locale; nuove piante/template/import scollegano il documento precedente.
+- Verifica reale da browser locale collegato a Supabase: password errata rifiutata, accesso, salvataggio Hub ordini e resi, logout, nuovo accesso, riapertura e aggiornamento; conflitto fra due schede respinto.
+- Test automatici: 35/35 compreso isolamento database. Controllo visivo desktop e mobile 390 px.

@@ -30,7 +30,7 @@ try{
  app.loadCatalogPreviews().catch(error=>console.warn('Anteprime catalogo non disponibili',error));
 }catch(error){
  clearTimeout(slow);
- status.textContent='Non è stato possibile aprire la scena. Controlla la connessione e riprova.';
+ if(!overlay.dataset.accountError)status.textContent='Non è stato possibile aprire la scena. Controlla la connessione e riprova.';
  track.hidden=true;retry.hidden=false;
  console.error('Warehouse Lab: caricamento non riuscito',error);
 }

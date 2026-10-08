@@ -10,3 +10,7 @@
 
 .simple-studio .studio-menu-content #library-toggle{display:block}
 .simple-studio [hidden]{display:none!important}
+
+.simple-studio .studio-account-link{display:block;padding:11px;color:#3b5545;font-size:12px;border-bottom:1px solid #e0e6dc;margin-bottom:4px}.simple-studio #cloud-status{font-size:9px;line-height:1.4;color:#426e59;max-width:450px}.simple-studio .project-heading{gap:1px}.simple-studio #save-online{font-weight:700;background:#eaf2e5}
+
+.simple-studio #cloud-status{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

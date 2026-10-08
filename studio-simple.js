@@ -8,7 +8,7 @@ export function simplifyStudio({view,design}){
  const name=$('#project-name');name.setAttribute('aria-label','Nome del progetto');heading.append(name,$('#save-status'));header.querySelector('.brand').after(heading);
  const projectMenu=menu('Progetto');actions.append(projectMenu.el);
  for(const id of ['new-project','import','save-project','export','capture-view','templates-open'])projectMenu.content.append($('#'+id));
- $('#export').classList.remove('primary');$('#export').textContent='Esporta file progetto';$('#import').textContent='Apri file progetto';$('#templates-open').textContent='Scegli un template';
+ $('#save-project').textContent='Salva sul dispositivo';$('#export').classList.remove('primary');$('#export').textContent='Esporta file progetto';$('#import').textContent='Apri file progetto';$('#templates-open').textContent='Scegli un template';
  const explore=$('#inside');explore.textContent='Esplora il magazzino';explore.classList.add('primary');actions.append(projectMenu.el,explore);explore.onclick=()=>{design();view('inside');body.classList.add('inspector-closed');body.classList.remove('inspector-open','mobile-library');};
  const nav=$('#studio-app>nav'),workflow=document.createElement('div');workflow.className='simple-workflow';
  const plan=$('#view2d'),scene=$('#view3d');plan.textContent='01  Pianta 2D';scene.textContent='02  Allestimento 3D';workflow.append(plan,scene);

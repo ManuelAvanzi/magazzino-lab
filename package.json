@@ -1,1 +1,19 @@
-{"name":"magazzino-lab","version":"0.2.0","private":true,"type":"module","scripts":{"dev":"node server.mjs","test":"node --test tests.mjs","build":"node build.mjs"}}
+{
+  "name": "magazzino-lab",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "test": "node --test tests.mjs tests/account-security.mjs",
+    "build": "node build.mjs",
+    "bundle:account": "esbuild node_modules/@supabase/supabase-js/dist/index.mjs --bundle --format=esm --platform=browser --minify --outfile=vendor/supabase.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.3",
+    "esbuild": "0.28.2"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8"
+  }
+}

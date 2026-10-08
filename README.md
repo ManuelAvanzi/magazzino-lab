@@ -125,3 +125,15 @@ La vista simulatore occupa l’intera finestra sotto la barra del sito: indicato
 
 ### Creazione da pianta
 La home propone Crea da zero e Riprendi progetto. Il percorso `studio.html?session=plan&new=1` apre il modulo nome/dimensioni e crea una pianta rettangolare vuota da 16 a 60 metri per lato. La sessione plan salva una bozza separata da demo, esercizi e progetto personale. Nome e dimensioni restano modificabili; Nuovo crea una nuova pianta con avviso di sostituzione e possibilità di Annulla. Salva conferma il salvataggio sul dispositivo; Esporta progetto scarica il JSON denominato come il progetto, riapribile con Apri.
+
+
+## Account e archivio online
+La homepage apre `account.html` tramite Accedi (I miei progetti quando autenticati). L’editor offre Progetto → Salva online e Salva online come nuova copia. Il salvataggio locale automatico e l’esportazione JSON restano disponibili.
+
+Il backend usa lo stesso servizio Supabase di Exhibition Lab, con tabella separata `warehouse_projects` e funzione `save_warehouse`. L’account redazione esistente è utilizzabile; nessuna password è inclusa nei file distribuiti. Le sessioni browser hanno chiave dedicata Warehouse Lab. `cloud-config.js` contiene solo URL e chiave pubblicabile; la sicurezza è applicata dal database. La migrazione già applicata è in `supabase/warehouse.sql`: non eseguirla di nuovo su questo database.
+
+Le righe sono visibili solo al proprietario; le scritture passano dalla funzione con controllo atomico della revisione. Una scheda non aggiornata non sovrascrive il progetto: riaprire l’archivio o salvare una copia. Le bozze online sono separate per account e ID progetto; in caso di differenza si può recuperare la copia locale. Logout non cancella le bozze locali del dispositivo.
+
+Questa versione include accesso agli account già attivi, archivio con ricerca e salvataggio/riapertura. Non include registrazione pubblica o recupero password dall’interfaccia. Le copertine dell’archivio sono immagini illustrative comuni del laboratorio.
+
+Il bundle ufficiale Supabase è incluso in `vendor/supabase.js`; per aggiornarlo usare `npm run bundle:account`. I test del database sono eseguiti con PGlite e controllano accessi anonimi, separazione tra utenti, scritture dirette vietate e revisioni.
