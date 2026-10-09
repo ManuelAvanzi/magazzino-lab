@@ -1,5 +1,7 @@
 # Warehouse Lab
 
+Per iniziare a collaborare: [accesso, installazione e verifiche](CONTRIBUTING.md).
+
 ## Versione attuale — 0.2
 
 Homepage con rendering del laboratorio, editor 3D e pianta modificabile, magazzino da 48 × 40 m, operatori animati e percorso didattico delle merci in sette fasi.
@@ -12,7 +14,7 @@ Sito: https://magazzino-lab.vercel.app — editor: https://magazzino-lab.vercel.
 
 Il progetto Vercel `magazzino-lab` è collegato alla repository GitHub. Gli aggiornamenti su `main` attivano la pubblicazione; i deploy di prova successivi possono essere creati con `npx vercel deploy`. Il primo deploy è stato completato il 5 ottobre 2026.
 
-`npm test` verifica il modello; `npm run build` prepara il sito statico in `dist/`, escludendo test, screenshot e appunti. `vercel.json` configura la pubblicazione con test obbligatori prima della build. Il progetto non richiede un server applicativo in produzione. I salvataggi rimangono nel browser: per trasferirli da localhost alla versione online usare Esporta progetto e Apri.
+`npm test` verifica il modello; `npm run build` prepara il sito statico in `dist/`, escludendo test, screenshot e appunti. `vercel.json` configura la pubblicazione con test obbligatori prima della build. Il progetto non richiede un server applicativo in produzione. Sono disponibili bozze nel browser e salvataggi online nel proprio account. Per trasferire una bozza locale usare Esporta progetto e Apri, oppure Salva online.
 
 Configuratore didattico 3D locale per discutere layout, logistica e interferenze di un magazzino. Ispirato al flusso dell'editor del configuratore mostre, con progetto e dati indipendenti.
 
@@ -40,7 +42,7 @@ Il renderer raggruppa le geometrie per materiale. Quando l'animazione è in paus
 
 ## Avvio
 
-Con Node.js installato, eseguire `npm run dev` e aprire http://localhost:5184. Non richiede installazione di dipendenze o Internet: Three.js 0.180.0 e OrbitControls sono inclusi in vendor con licenza MIT.
+Con Node.js installato, eseguire `npm run dev` e aprire http://localhost:5184. Il renderer usa Three.js 0.180.0 e OrbitControls inclusi in vendor con licenza MIT. Eseguire prima npm ci per installare anche gli strumenti di test; account e archivio richiedono Internet.
 
 ## Funzioni
 
@@ -142,3 +144,7 @@ Nell’editor, Guida alla simulazione presenta sette requisiti e spiega cosa agg
 L’avvio richiede ricevimento, due scaffali, banco, spedizioni, percorso pedonale, uscita e operatore; controlla inoltre interferenze, separazione delle aree, posizioni libere e raggiungibilità del lotto su griglia. È una verifica didattica, non una certificazione normativa o delle manovre dei mezzi.
 
 La simulazione riceve una copia dello stato corrente via sessionStorage, conserva geometria e attrezzature del progetto e rappresenta un lotto simbolico su due scaffali. Le scorte del resto dell’allestimento non sono contabilizzate. Il ritorno apre la sessione dell’editor originale; le operazioni non modificano il documento salvato. L’indirizzo temporaneo con layout funziona nella stessa scheda; il parametro project può aprire un progetto online per un utente autorizzato. Un layout mancante o non idoneo viene bloccato, senza sostituirlo con la demo.
+
+## Editor 03 Flussi
+
+La terza fase permette di creare più flussi, aggiungere e riordinare tappe, scegliere postazioni e immagini didattiche, descrivere operazioni e verifiche. Anteprima e simulazione controllano i collegamenti negli spazi liberi. I flussi sono inclusi nel JSON e nel salvataggio online. Le illustrazioni AI e i relativi prompt sono in assets/phases.
