@@ -45,7 +45,7 @@ $('#lighting').onchange=e=>studio.setLighting(e.target.value);
 
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('#toast').classList.remove('show'),3500);}
 function openInspector(){document.body.classList.remove('mobile-library');document.body.classList.remove('inspector-closed');document.body.classList.add('inspector-open');}
-function save(){try{localStorage.setItem(storageKey,JSON.stringify(project));if($('#cloud-status'))$('#cloud-status').textContent='Bozza locale salvata · premi Salva online';$('#save-status').textContent=session==='personal'?'✓ Salvato su questo dispositivo':'✓ Sessione salvata separatamente';}catch{$('#save-status').textContent='Salvataggio non disponibile: esporta il progetto';}}
+function save(){try{localStorage.setItem(storageKey,JSON.stringify(project));if($('#cloud-status'))$('#cloud-status').textContent='Bozza salvata sul dispositivo';$('#save-status').textContent=session==='personal'?'✓ Salvato su questo dispositivo':'✓ Sessione salvata separatamente';}catch{$('#save-status').textContent='Salvataggio non disponibile: esporta il progetto';}}
 function commit(action){plan.cancel();future=[];studio.setMotion(false,true);history.push(JSON.stringify(project));if(history.length>40)history.shift();action();save();rebuild();}
 function commitFlow(action){future=[];history.push(JSON.stringify(project));if(history.length>40)history.shift();action();save();studio.flowLesson.build(project);updateUI();updateTools();}
 function rebuild(){studio.build(project,selected);plan.render(project,selected,analyze(project));updateUI();updateTools();}

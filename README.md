@@ -1,3 +1,5 @@
+> **Stato attuale (13 ottobre 2026):** integrazione Supabase rimossa. Il laboratorio usa la persistenza locale; accesso e archivio online del prototipo sono disattivati. Vedi [Persistenza](docs/PERSISTENZA.md). Le descrizioni storiche del backend più sotto non descrivono la versione attuale.
+
 # Warehouse Lab
 
 Per iniziare a collaborare: [accesso, installazione e verifiche](CONTRIBUTING.md).
@@ -126,25 +128,17 @@ Le quantità aggiornano la scena a ogni conferma: 6 unità iniziali, 4 ricevute 
 La home propone Crea da zero e Riprendi progetto. Il percorso `studio.html?session=plan&new=1` apre il modulo nome/dimensioni e crea una pianta rettangolare vuota da 16 a 60 metri per lato. La sessione plan salva una bozza separata da demo, esercizi e progetto personale. Nome e dimensioni restano modificabili; Nuovo crea una nuova pianta con avviso di sostituzione e possibilità di Annulla. Salva conferma il salvataggio sul dispositivo; Esporta progetto scarica il JSON denominato come il progetto, riapribile con Apri.
 
 
-## Account e archivio online
-La homepage apre `account.html` tramite Accedi (I miei progetti quando autenticati). L’editor offre Progetto → Salva online e Salva online come nuova copia. Il salvataggio locale automatico e l’esportazione JSON restano disponibili.
+## Salvataggio sul dispositivo
 
-Il backend usa lo stesso servizio Supabase di Exhibition Lab, con tabella separata `warehouse_projects` e funzione `save_warehouse`. L’account redazione esistente è utilizzabile; nessuna password è inclusa nei file distribuiti. Le sessioni browser hanno chiave dedicata Warehouse Lab. `cloud-config.js` contiene solo URL e chiave pubblicabile; la sicurezza è applicata dal database. La migrazione già applicata è in `supabase/warehouse.sql`: non eseguirla di nuovo su questo database.
-
-Le righe sono visibili solo al proprietario; le scritture passano dalla funzione con controllo atomico della revisione. Una scheda non aggiornata non sovrascrive il progetto: riaprire l’archivio o salvare una copia. Le bozze online sono separate per account e ID progetto; in caso di differenza si può recuperare la copia locale. Logout non cancella le bozze locali del dispositivo.
-
-Questa versione include accesso agli account già attivi, archivio con ricerca e salvataggio/riapertura. Non include registrazione pubblica o recupero password dall’interfaccia. Le copertine dell’archivio sono immagini illustrative comuni del laboratorio.
-
-Il bundle ufficiale Supabase è incluso in `vendor/supabase.js`; per aggiornarlo usare `npm run bundle:account`. I test del database sono eseguiti con PGlite e controllano accessi anonimi, separazione tra utenti, scritture dirette vietate e revisioni.
-
+L’editor salva localmente e permette di esportare e riaprire un file JSON. Non è richiesto un account. Vedere [Persistenza](docs/PERSISTENZA.md).
 
 ### Simulazione sul proprio magazzino
 Nell’editor, Guida alla simulazione presenta sette requisiti e spiega cosa aggiungere e perché. Si apre anche dopo la creazione di una pianta nuova. Ogni requisito mancante offre un pulsante di inserimento; l’utente dispone gli elementi in pianta. Il comando Laboratorio → Simula il mio magazzino apre gli stessi controlli.
 
 L’avvio richiede ricevimento, due scaffali, banco, spedizioni, percorso pedonale, uscita e operatore; controlla inoltre interferenze, separazione delle aree, posizioni libere e raggiungibilità del lotto su griglia. È una verifica didattica, non una certificazione normativa o delle manovre dei mezzi.
 
-La simulazione riceve una copia dello stato corrente via sessionStorage, conserva geometria e attrezzature del progetto e rappresenta un lotto simbolico su due scaffali. Le scorte del resto dell’allestimento non sono contabilizzate. Il ritorno apre la sessione dell’editor originale; le operazioni non modificano il documento salvato. L’indirizzo temporaneo con layout funziona nella stessa scheda; il parametro project può aprire un progetto online per un utente autorizzato. Un layout mancante o non idoneo viene bloccato, senza sostituirlo con la demo.
+La simulazione riceve una copia dello stato corrente via sessionStorage, conserva geometria e attrezzature del progetto e rappresenta un lotto simbolico su due scaffali. Le scorte del resto dell’allestimento non sono contabilizzate. Il ritorno apre la sessione dell’editor originale; le operazioni non modificano il documento salvato. L’indirizzo temporaneo con layout funziona nella stessa scheda; i vecchi collegamenti con parametro project mostrano un avviso perché l’archivio online è disattivato. Un layout mancante o non idoneo viene bloccato, senza sostituirlo con la demo.
 
 ## Editor 03 Flussi
 
-La terza fase permette di creare più flussi, aggiungere e riordinare tappe, scegliere postazioni e immagini didattiche, descrivere operazioni e verifiche. Anteprima e simulazione controllano i collegamenti negli spazi liberi. I flussi sono inclusi nel JSON e nel salvataggio online. Le illustrazioni AI e i relativi prompt sono in assets/phases.
+La terza fase permette di creare più flussi, aggiungere e riordinare tappe, scegliere postazioni e immagini didattiche, descrivere operazioni e verifiche. Anteprima e simulazione controllano i collegamenti negli spazi liberi. I flussi sono inclusi nel JSON e nel salvataggio locale. Le illustrazioni AI e i relativi prompt sono in assets/phases.
